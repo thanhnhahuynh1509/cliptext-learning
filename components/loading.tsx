@@ -10,7 +10,7 @@ const font = Suez_One({
 
 const Loading = () => {
   return (
-    <div className="w-full h-full flex flex-col items-center justify-center">
+    <div className="w-full h-full flex flex-col items-center justify-center bg-white">
       <Image
         src={"/logo.svg"}
         alt="logo"

@@ -1,33 +1,26 @@
 "use client";
 
-import React, { useCallback } from "react";
+import React from "react";
 import Footer from "./footer";
 import Preview from "./preview";
 import { Project, Status } from "@/types/project-types";
-import { useUser } from "@clerk/nextjs";
 import ContextMenuProject from "./context-menu-project";
 import { toast } from "sonner";
 import { useDebounceCallback } from "usehooks-ts";
+import { useRouter } from "next/navigation";
 
-const ProjectCard = ({
-  id,
-  kind,
-  url,
-  uploadType,
-  name,
-  createdAt,
-  authorId,
-  authorName,
-  status,
-  duration,
-}: Project) => {
-  const { user } = useUser();
+interface ProjectCardProps {
+  project: Project;
+}
+
+const ProjectCard = ({ project }: ProjectCardProps) => {
+  const { id, name, status } = project;
+  const { push } = useRouter();
+
   let isToastShowing = false;
   const resetToastShowing = useDebounceCallback(() => {
     isToastShowing = false;
   }, 1000);
-
-  const labelCreatedUser = authorId === user?.id ? "You" : authorName;
 
   const onOpenProject = () => {
     if (status === Status.Pending) {
@@ -37,22 +30,26 @@ const ProjectCard = ({
       } else {
         resetToastShowing();
       }
+    } else if (status === Status.Fail) {
+      if (!isToastShowing) {
+        isToastShowing = true;
+        toast.info(`"${name}" was failed, please retry or contact support!`);
+      } else {
+        resetToastShowing();
+      }
+    } else {
+      push(`/projects/${project.id}`);
     }
   };
 
   return (
     <ContextMenuProject projectId={id} projectName={name}>
       <div
-        className="group aspect-[100/127] rounded-lg border flex flex-col overflow-hidden cursor-pointer"
+        className="group aspect-[16/18] rounded-lg border flex flex-col overflow-hidden cursor-pointer"
         onClick={onOpenProject}
       >
-        <Preview id={id} url={url} kind={kind} status={status} />
-        <Footer
-          id={id}
-          name={name}
-          createdAt={createdAt}
-          createdBy={labelCreatedUser}
-        />
+        <Preview project={project} />
+        <Footer project={project} />
       </div>
     </ContextMenuProject>
   );

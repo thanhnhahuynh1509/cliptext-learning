@@ -1,7 +1,7 @@
 import { Project } from "@/types/project-types";
 import { create } from "zustand";
 
-interface IProjectModal {
+interface IProjectModel {
   projects: Project[] | undefined;
   setProjects: (projects: Project[]) => void;
   add: (project: Project) => void;
@@ -9,7 +9,7 @@ interface IProjectModal {
   delete: (id: string) => void;
 }
 
-export const useProjects = create<IProjectModal>((set) => {
+export const useProjects = create<IProjectModel>((set) => {
   return {
     projects: undefined,
     setProjects: (projects: Project[]) => {

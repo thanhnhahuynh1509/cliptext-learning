@@ -1,38 +1,47 @@
 "use client";
 
+import { Badge } from "@/components/ui/badge";
 import { SERVER_ENDPOINT } from "@/config/server-config";
-import { Kind, Status } from "@/types/project-types";
-import { Pen, Settings } from "lucide-react";
+import { formatDuration } from "@/lib/utils";
+import { Kind, Project } from "@/types/project-types";
+import Image from "next/image";
 
 interface PreviewProps {
-  id: string;
-  kind: Kind;
-  url: string;
-  status: Status;
+  project: Project;
 }
 
-const Preview = ({ kind, url, status, id }: PreviewProps) => {
+const Preview = ({ project }: PreviewProps) => {
   return (
     <>
-      <div className="group relative flex-1 bg-amber-200 w-full h-full overflow-hidden flex items-center justify-center">
+      <div className="w-full aspect-[16/9] flex-1 group relative overflow-hidden flex items-center justify-center">
         <div className="absolute top-0 left-0 right-0 bottom-0  flex items-center justify-center opacity-0 group-hover:opacity-100 transition bg-black/40" />
 
-        {kind === Kind.Video && (
-          <div className="flex items-center justify-center opacity-100 transition w-full h-full">
-            <video className="w-full h-full object-cover" controls={false}>
-              <source src={SERVER_ENDPOINT + "/" + url + "#t=5"} />
-            </video>
+        {project.kind === Kind.Video && (
+          <div className="w-full h-full flex items-center justify-center opacity-100 transition bg-gray-200 relative">
+            {!project.thumbnail && (
+              <video
+                className="w-full h-full object-cover absolute top-0 left-0 bottom-0 right-0"
+                controls={false}
+              >
+                <source src={SERVER_ENDPOINT + "/" + project.url + "#t=5"} />
+              </video>
+            )}
+            {project.thumbnail && (
+              <Image
+                src={SERVER_ENDPOINT + "/" + project.thumbnail}
+                alt="thumbnail"
+                fill
+                className="top-0 left-0 w-full h-full object-cover"
+              />
+            )}
           </div>
         )}
 
-        {status === Status.Pending && (
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 flex flex-col items-center justify-center opacity-100 transition gap-y-4">
-            <Settings className="w-8 h-8  fill-white group-hover:animate-spin mr-2" />{" "}
-            <span className="hidden group-hover:block text-white font-semibold">
-              Processing
-            </span>
-          </div>
-        )}
+        <div className="absolute bottom-2 right-2 flex flex-col items-center justify-center opacity-100 transition gap-y-4">
+          <span className="flex items-center justify-center px-2 py-1 rounded-md bg-black/50 text-white text-[12px]">
+            {formatDuration(project.duration)}
+          </span>
+        </div>
       </div>
     </>
   );

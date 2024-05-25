@@ -12,8 +12,8 @@ import { UploadType, Kind, Project, Status } from "@/types/project-types";
 import { v4 as uuid } from "uuid";
 import { useUser } from "@clerk/nextjs";
 
-import { ButtonIcon } from "../button-icon";
 import { useProjects } from "@/stores/projects-store";
+import { useRooms } from "@/stores/rooms-store";
 
 const LocalUploadForm = () => {
   const [id] = useState(uuid());
@@ -21,6 +21,7 @@ const LocalUploadForm = () => {
   const [progress, setProgress] = useState(0);
 
   const { user } = useUser();
+  const { currentRoom } = useRooms();
   const { isCreating, uploadType, setIsCreating, setOpen, setUploadType } =
     useCreateProjectModal();
   const { add } = useProjects();
@@ -75,6 +76,7 @@ const LocalUploadForm = () => {
         authorName: user!.fullName!,
         status: Status.Pending,
         duration: videoRef?.current?.duration!,
+        roomId: currentRoom?.id!,
       };
 
       await save(project);
@@ -113,6 +115,7 @@ const LocalUploadForm = () => {
         toast.info("Uploading your clip...");
       }
     } catch (e) {
+      console.log(e);
       toast.error(
         "Couldn't upload your clip! Please try again or contact supports."
       );
@@ -196,12 +199,6 @@ const LocalUploadForm = () => {
               {isCreating && (
                 <div className="flex gap-x-2 w-full items-center justify-between">
                   <Progress value={progress} className="w-full h-2 flex-1" />
-                  <ButtonIcon
-                    icon={CircleX}
-                    label="Cancel"
-                    className="w-9 h-9"
-                    onClick={onCancel}
-                  />
                 </div>
               )}
             </div>

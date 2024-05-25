@@ -2,29 +2,29 @@
 
 import React, { useEffect } from "react";
 import ProjectCard, { ProjectCardSkeleton } from "./_components/project-card";
-import NewProjectButton from "./_components/new-project-button";
 import EmptyProject from "./_components/empty-project";
-import { list } from "@/api/project";
+import { list, listByRoomId } from "@/api/project";
 import { useUser } from "@clerk/nextjs";
 import { useProjects } from "@/stores/projects-store";
+import { useRooms } from "@/stores/rooms-store";
 
 const DashboardPage = () => {
   const { user } = useUser();
+  const { currentRoom } = useRooms();
   const { projects, setProjects } = useProjects();
 
   useEffect(() => {
     async function init() {
-      const projects = await list(user?.id ?? "");
+      const projects = await listByRoomId(currentRoom?.id!);
       setProjects(projects);
     }
 
     init();
-  }, [user?.id, setProjects]);
+  }, [currentRoom?.id, setProjects]);
 
   if (projects == undefined) {
     return (
-      <div className="grid grid-cols-6 gap-4">
-        <NewProjectButton />
+      <div className="gap-4 project 2xl:grid-cols-6 xl:grid-cols-4 lg:grid-cols-3">
         <ProjectCardSkeleton />
         <ProjectCardSkeleton />
         <ProjectCardSkeleton />
@@ -36,22 +36,9 @@ const DashboardPage = () => {
   }
 
   return (
-    <div className="gap-4 grid 2xl:grid-cols-6 xl:grid-cols-4 lg:grid-cols-4 md:grid-cols-3 sm:grid-cols-2">
-      <NewProjectButton />
+    <div className="gap-4 project 2xl:grid-cols-5 xl:grid-cols-4 lg:grid-cols-3">
       {projects.map((project) => (
-        <ProjectCard
-          key={project.id}
-          id={project.id}
-          url={project.url}
-          kind={project.kind}
-          uploadType={project.uploadType}
-          name={project.name}
-          createdAt={project.createdAt}
-          authorId={project.authorId}
-          authorName={project.authorName}
-          status={project.status}
-          duration={project.duration}
-        />
+        <ProjectCard key={project.id} project={project} />
       ))}
     </div>
   );

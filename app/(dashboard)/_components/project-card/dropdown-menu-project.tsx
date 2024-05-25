@@ -42,13 +42,15 @@ const DropdownMenuProject = ({
 
   return (
     <>
-      <DropdownMenu>
+      <DropdownMenu modal={false}>
         <DropdownMenuTrigger asChild>{children}</DropdownMenuTrigger>
         <DropdownMenuContent
           className="w-[200px]"
           onClick={(e) => {
             e.stopPropagation();
           }}
+          side="right"
+          align="start"
         >
           <DropdownMenuItem
             className="cursor-pointer flex items-center"

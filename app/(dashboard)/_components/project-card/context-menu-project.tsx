@@ -43,7 +43,7 @@ const ContextMenuProject = ({
   };
 
   return (
-    <ContextMenu>
+    <ContextMenu modal={false}>
       <ContextMenuTrigger>{children}</ContextMenuTrigger>
       <ContextMenuContent
         className="w-[200px]"

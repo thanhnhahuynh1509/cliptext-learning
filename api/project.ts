@@ -103,3 +103,18 @@ export async function updateName(id: string, name: string) {
   });
   return response.data;
 }
+
+export async function listByRoomId(roomId: string) {
+  const response = await axios.get(`${PROJECT_ENDPOINT}/rooms/${roomId}`);
+  return response.data;
+}
+
+export async function getById(id: string) {
+  const response = await fetch(`${PROJECT_ENDPOINT}/${id}`);
+  return response.json();
+}
+
+export async function getDataById(id: string) {
+  const response = await axios.get(`${PROJECT_ENDPOINT}/${id}/data`);
+  return response.data;
+}

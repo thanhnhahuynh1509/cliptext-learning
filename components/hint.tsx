@@ -32,9 +32,9 @@ const Hint = ({
           sideOffset={sideOffset}
           align={align}
           alignOffset={alignOffset}
-          className="bg-black py-2 border-black"
+          className="bg-slate-700 border-slate-700"
         >
-          <p className="font-semibold text-white">{label}</p>
+          <p className="font-normal text-sm text-white">{label}</p>
         </TooltipContent>
       </Tooltip>
     </TooltipProvider>

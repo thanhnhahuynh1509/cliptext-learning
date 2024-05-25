@@ -8,7 +8,7 @@ import ModalProvider from "@/providers/modal-provider";
 const inter = Poppins({ subsets: ["latin"], weight: "400" });
 
 export const metadata: Metadata = {
-  title: "Cliptext",
+  title: "cliptext.com",
   description: "Your video and audio clip to text",
 };
 
@@ -20,6 +20,9 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={inter.className}>
+        {/* {children}
+        <ModalProvider />
+        <Toaster /> */}
         <ConvexClerkClientProvider>
           {children}
           <ModalProvider />

@@ -24,5 +24,7 @@ export interface Project {
   authorId: string;
   authorName: string;
   status: Status;
+  thumbnail?: string;
   duration: number;
+  roomId: string;
 }
