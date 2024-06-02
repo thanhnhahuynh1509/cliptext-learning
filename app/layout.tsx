@@ -20,9 +20,6 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={inter.className}>
-        {/* {children}
-        <ModalProvider />
-        <Toaster /> */}
         <ConvexClerkClientProvider>
           {children}
           <ModalProvider />

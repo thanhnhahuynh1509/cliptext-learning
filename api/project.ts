@@ -1,5 +1,12 @@
 import { PROJECT_ENDPOINT } from "@/config/server-config";
 import { Project } from "@/types/project-types";
+import {
+  Chapter,
+  Edit,
+  Speaker,
+  Utterance,
+  Word,
+} from "@/types/transcript-types";
 import axios from "axios";
 
 const TEN_MB = 1024 * 1024 * 10;
@@ -116,5 +123,47 @@ export async function getById(id: string) {
 
 export async function getDataById(id: string) {
   const response = await axios.get(`${PROJECT_ENDPOINT}/${id}/data`);
+  return response.data;
+}
+
+export async function updateEdit(id: string, edits: Edit[]) {
+  const response = await axios.put(`${PROJECT_ENDPOINT}/${id}/edits`, {
+    edits: JSON.stringify(edits),
+  });
+  return response.data;
+}
+
+export async function updateWords(id: string, words: Word[]) {
+  const response = await axios.put(`${PROJECT_ENDPOINT}/${id}/words`, {
+    words: JSON.stringify(words),
+  });
+  return response.data;
+}
+
+export async function updateUtterances(id: string, utterances: Utterance[]) {
+  const response = await axios.put(`${PROJECT_ENDPOINT}/${id}/utterances`, {
+    utterances: JSON.stringify(utterances),
+  });
+  return response.data;
+}
+
+export async function updateChapters(id: string, chapters: Chapter[]) {
+  const response = await axios.put(`${PROJECT_ENDPOINT}/${id}/chapters`, {
+    chapters: JSON.stringify(chapters),
+  });
+  return response.data;
+}
+
+export async function updateSpeaker(id: string, speaker: Speaker) {
+  const response = await axios.put(`${PROJECT_ENDPOINT}/${id}/speaker`, {
+    speaker: JSON.stringify(speaker),
+  });
+  return response.data;
+}
+
+export async function exportMP4(id: string, input: string) {
+  const response = await axios.post(
+    `${PROJECT_ENDPOINT}/${id}/export-mp4?input=${input}`
+  );
   return response.data;
 }

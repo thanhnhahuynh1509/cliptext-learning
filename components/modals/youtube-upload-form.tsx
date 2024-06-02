@@ -27,7 +27,6 @@ const YoutubeUploadForm = () => {
     const youtubeId = getYouTubeId(value);
 
     if (!youtubeId) {
-      console.log("not valid");
       toast.error("Youtube video url is not valid!");
       return;
     }

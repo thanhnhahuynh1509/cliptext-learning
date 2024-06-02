@@ -87,3 +87,23 @@ html,
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
 }
+
+.edit-video-container video::-webkit-media-controls-current-time-display,
+.edit-video-container video::-webkit-media-controls-time-remaining-display,
+.edit-video-container video::-webkit-media-controls-timeline {
+  display: none !important;
+}
+
+.edit-video-container video::-webkit-media-controls-seek-back-button,
+.edit-video-container video::-webkit-media-controls-seek-forward-button {
+  display: none !important;
+}
+
+.edit-video-container video::-moz-range-track {
+  display: none !important;
+}
+
+.edit-video-container video::-ms-track,
+.edit-video-container video::-ms-time {
+  display: none !important;
+}

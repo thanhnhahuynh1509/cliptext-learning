@@ -38,7 +38,8 @@ const ProjectCard = ({ project }: ProjectCardProps) => {
         resetToastShowing();
       }
     } else {
-      push(`/projects/${project.id}`);
+      // push(`/projects/${project.id}`);
+      window.location.href = `/projects/${project.id}`;
     }
   };
 
