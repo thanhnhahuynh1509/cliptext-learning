@@ -1,7 +1,7 @@
 import { cn } from "@/lib/utils";
 import { Word } from "@/types/transcript-types";
 import { Jost } from "next/font/google";
-import React, { memo, useState } from "react";
+import React, { memo } from "react";
 
 const jostFont = Jost({
   subsets: ["latin"],
@@ -16,8 +16,6 @@ interface WordItemProps {
 }
 
 const WordItem = ({ word, className, isEditable, onClick }: WordItemProps) => {
-  const [text, setText] = useState(word.text);
-
   return (
     <>
       <span
@@ -36,7 +34,7 @@ const WordItem = ({ word, className, isEditable, onClick }: WordItemProps) => {
           }
         }}
       >
-        {text}
+        {word.text}
       </span>
 
       <span

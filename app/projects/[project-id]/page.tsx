@@ -11,6 +11,7 @@ import { useProjects } from "@/stores/projects-store";
 import { useTranscript } from "@/stores/transcript-store";
 import { useMediaPlayerRender } from "@/stores/media-player-render-store";
 import { useMediaPlayerRef } from "@/stores/media-player-ref-store";
+import { captureFrame } from "@/lib/utils";
 
 interface ProjectPageProps {
   params: {
@@ -22,8 +23,6 @@ const ProjectPage = ({ params }: ProjectPageProps) => {
   const projectId = params["project-id"];
   const { currentProject, setCurrentProject } = useProjects();
   const {
-    edits,
-    chapters,
     setWords,
     setSpeakerMap,
     setChapters,
@@ -35,10 +34,12 @@ const ProjectPage = ({ params }: ProjectPageProps) => {
   const { objectUrl, setObjectUrl } = useMediaPlayerRef();
 
   const [notfound, setNotfound] = useState(false);
+  const [onLoading, setOnLoading] = useState(false);
 
   useEffect(() => {
     const init = async () => {
       try {
+        setOnLoading(true);
         const response = await getById(projectId);
         const data = await getDataById(projectId);
 
@@ -51,9 +52,39 @@ const ProjectPage = ({ params }: ProjectPageProps) => {
 
         const mediaResponse = await fetch(SERVER_ENDPOINT + "/" + response.url);
         const blobData = await mediaResponse.blob();
-        setObjectUrl(URL.createObjectURL(blobData));
+        const objectBlobUrl = URL.createObjectURL(blobData);
+        setObjectUrl(objectBlobUrl);
+
+        const chapterPreviews: any = {};
+        for (const chapter of data.chapters ?? []) {
+          const result = await captureFrame(
+            objectBlobUrl,
+            chapter.start / 1000
+          );
+          if (result) {
+            chapterPreviews[chapter.id] = result;
+          }
+        }
+
+        const editPreviews: any = {};
+        for (const edit of data.edits ?? []) {
+          const result = await captureFrame(
+            objectBlobUrl,
+            edit?.words[0].start / 1000
+          );
+          if (result) {
+            editPreviews[edit.id] = result;
+          }
+        }
+
+        localStorage.setItem(
+          "projectPreviewContainer",
+          JSON.stringify({ chapters: chapterPreviews, edits: editPreviews })
+        );
       } catch (e) {
         setNotfound(true);
+      } finally {
+        setOnLoading(false);
       }
     };
 
@@ -76,13 +107,7 @@ const ProjectPage = ({ params }: ProjectPageProps) => {
         resetTranscript();
       }
 
-      for (const chapter of chapters ?? []) {
-        localStorage.removeItem(`preview_chapter_${chapter.id}`);
-      }
-
-      for (const edit of edits ?? []) {
-        localStorage.removeItem(`preview_edit_${edit.id}`);
-      }
+      localStorage.removeItem("projectPreviewContainer");
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -92,6 +117,10 @@ const ProjectPage = ({ params }: ProjectPageProps) => {
   }
 
   if (!currentProject) {
+    return <Loading />;
+  }
+
+  if (onLoading) {
     return <Loading />;
   }
 

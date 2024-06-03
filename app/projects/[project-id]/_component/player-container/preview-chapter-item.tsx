@@ -1,4 +1,4 @@
-import { captureFrame, formatDuration } from "@/lib/utils";
+import { formatDuration } from "@/lib/utils";
 import { useMediaPlayerRef } from "@/stores/media-player-ref-store";
 import { useProjects } from "@/stores/projects-store";
 import { Kind } from "@/types/project-types";
@@ -18,18 +18,11 @@ const PreviewChapterItem = ({ chapter }: PreviewChapterItemProps) => {
 
   useEffect(() => {
     if (currentProject?.kind !== Kind.Audio) {
-      const previewKey = `preview_chapter_${chapter.id}`;
-      const preview = localStorage.getItem(previewKey);
-      if (!preview) {
-        captureFrame(objectUrl, chapter.start / 1000).then((result) => {
-          setImageSrc(result);
-          if (result) {
-            localStorage.setItem(previewKey, result);
-          }
-        });
-      } else {
-        setImageSrc(preview);
-      }
+      const projectPreviewContainer = JSON.parse(
+        localStorage.getItem("projectPreviewContainer") || "{}"
+      );
+      const preview = projectPreviewContainer.chapters[chapter.id];
+      setImageSrc(preview ?? undefined);
     }
   }, [chapter, currentProject?.kind, objectUrl]);
 

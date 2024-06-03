@@ -15,13 +15,19 @@ const EditPreview = ({ id, start, end }: EditPreviewProps) => {
 
   useEffect(() => {
     if (objectUrl) {
-      const previewKey = `preview_edit_${id}`;
-      const preview = localStorage.getItem(previewKey);
+      const projectPreviewContainer = JSON.parse(
+        localStorage.getItem("projectPreviewContainer") || "{}"
+      );
+      const preview = projectPreviewContainer.edits[id];
       if (!preview) {
         captureFrame(objectUrl, start / 1000).then((result) => {
           setImageSrc(result);
           if (result) {
-            localStorage.setItem(previewKey, result);
+            projectPreviewContainer.edits[id] = result;
+            localStorage.setItem(
+              "projectPreviewContainer",
+              JSON.stringify(projectPreviewContainer)
+            );
           }
         });
       } else {

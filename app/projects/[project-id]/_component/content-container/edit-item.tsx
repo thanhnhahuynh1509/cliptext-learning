@@ -29,7 +29,7 @@ const EditItem = ({ edit, onClick, onDelete, active }: EditItemProps) => {
 
   return (
     <motion.div
-      className={`flex items-start gap-x-4 cursor-pointer rounded-md p-2 border border-dashed border-transparent ${active ? "border-slate-400" : "hover:border-gray-300"} transition group relative`}
+      className={`my-4 flex items-start gap-x-4 cursor-pointer rounded-md p-2 border border-dashed ${active ? "border-slate-400" : "border-transparent hover:border-gray-300"} transition group relative`}
       onClick={(e) => {
         if (onClick) {
           onClick(edit);

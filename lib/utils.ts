@@ -84,10 +84,10 @@ export const captureFrame = async (
   return await new Promise<string>((resolve) => {
     const canvas = document.createElement("canvas");
     const context = canvas.getContext("2d");
+    const video = document.createElement("video");
 
     if (!objectUrl) return undefined;
 
-    const video = document.createElement("video");
     video.src = objectUrl;
     video.currentTime = captureTime;
     video.onloadeddata = () => {
