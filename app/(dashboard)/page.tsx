@@ -3,10 +3,11 @@
 import React, { useEffect } from "react";
 import ProjectCard, { ProjectCardSkeleton } from "./_components/project-card";
 import EmptyProject from "./_components/empty-project";
-import { list, listByRoomId } from "@/api/project";
+import { getById, listByRoomId } from "@/api/project";
 import { useUser } from "@clerk/nextjs";
 import { useProjects } from "@/stores/projects-store";
 import { useRooms } from "@/stores/rooms-store";
+import { Project, Status } from "@/types/project-types";
 
 const DashboardPage = () => {
   const { user } = useUser();
@@ -21,6 +22,36 @@ const DashboardPage = () => {
 
     init();
   }, [currentRoom?.id, setProjects]);
+
+  useEffect(() => {
+    let intervalId: any;
+    if (projects && projects?.length) {
+      intervalId = setInterval(() => {
+        const havePending = !projects.every(
+          (project) => project.status !== Status.Pending
+        );
+        if (!havePending) {
+          clearInterval(intervalId);
+          return;
+        }
+
+        for (const project of projects) {
+          if (project.status === Status.Pending) {
+            getById(project.id).then((response: Project) => {
+              if (response.status !== Status.Pending) {
+                project.status = response.status;
+                setProjects(projects);
+              }
+            });
+          }
+        }
+      }, 2000);
+    }
+
+    return () => {
+      clearInterval(intervalId);
+    };
+  }, [projects, setProjects]);
 
   if (projects == undefined) {
     return (

@@ -59,13 +59,6 @@ const DropdownMenuProject = ({
             <Pen className="w-4 h-4 mr-2" />
             <span>Change name</span>
           </DropdownMenuItem>
-          <DropdownMenuItem
-            className="cursor-pointer flex items-center"
-            onClick={onCopy}
-          >
-            <Clipboard className="w-4 h-4 mr-2" />
-            <span>Copy link</span>
-          </DropdownMenuItem>
           <DropdownMenuSeparator />
           <DropdownMenuItem
             className="cursor-pointer  flex items-center"
