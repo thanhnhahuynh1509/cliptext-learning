@@ -54,7 +54,8 @@ const CreateProjectModal = () => {
               </TabsTrigger>
               <TabsTrigger
                 value="youtube"
-                disabled={isCreating && type !== UploadType.Youtube}
+                // disabled={isCreating && type !== UploadType.Youtube}
+                disabled
               >
                 <Youtube className="w-4 h-4 mr-2 fill-white stroke-rose-500" />
                 Youtube

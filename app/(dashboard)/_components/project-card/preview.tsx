@@ -4,6 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { SERVER_ENDPOINT } from "@/config/server-config";
 import { formatDuration } from "@/lib/utils";
 import { Kind, Project } from "@/types/project-types";
+import { Headphones } from "lucide-react";
 import Image from "next/image";
 
 interface PreviewProps {
@@ -34,6 +35,12 @@ const Preview = ({ project }: PreviewProps) => {
                 className="top-0 left-0 w-full h-full object-cover"
               />
             )}
+          </div>
+        )}
+
+        {project.kind === Kind.Audio && (
+          <div className="w-full h-full flex items-center justify-center opacity-100 transition bg-blue-100 relative">
+            <Headphones className="w-8 h-8 text-muted-foreground absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2" />
           </div>
         )}
 

@@ -37,7 +37,7 @@ const LocalUploadForm = () => {
     }
     const fileInput = fileInputRef?.current;
     fileInput.type = "file";
-    fileInput.accept = "video/*";
+    fileInput.accept = "video/*, audio/*";
     const change = (e: any) => {
       const uploadFiles = (e.target as any).files;
       if (uploadFiles?.length) {
@@ -69,7 +69,9 @@ const LocalUploadForm = () => {
         id: id,
         name: filePath.split("/").pop()!,
         uploadType: uploadType,
-        kind: Kind.Video,
+        kind: (videoRef.current as any).type?.startsWith("audio/")
+          ? Kind.Audio
+          : Kind.Video,
         url: filePath,
         createdAt: Date.now(),
         authorId: user!.id,
@@ -147,6 +149,7 @@ const LocalUploadForm = () => {
         URL.revokeObjectURL(videoRef.current.src);
       }
       videoRef.current.src = URL.createObjectURL(files[0]);
+      console.log(files[0].type);
       (videoRef.current as any).type = files[0].type;
       videoRef.current.load();
     }
@@ -167,7 +170,7 @@ const LocalUploadForm = () => {
       )}
       <Input
         type="file"
-        accept="video/*"
+        accept="video/*, audio/*"
         className={`${files?.length ? "block" : "hidden"}`}
         ref={fileInputRef}
         disabled={isCreating}

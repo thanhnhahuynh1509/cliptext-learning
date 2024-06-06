@@ -12,6 +12,7 @@ import { useTranscript } from "@/stores/transcript-store";
 import { useMediaPlayerRender } from "@/stores/media-player-render-store";
 import { useMediaPlayerRef } from "@/stores/media-player-ref-store";
 import { captureFrame } from "@/lib/utils";
+import { Kind } from "@/types/project-types";
 
 interface ProjectPageProps {
   params: {
@@ -55,32 +56,36 @@ const ProjectPage = ({ params }: ProjectPageProps) => {
         const objectBlobUrl = URL.createObjectURL(blobData);
         setObjectUrl(objectBlobUrl);
 
-        const chapterPreviews: any = {};
-        for (const chapter of data.chapters ?? []) {
-          const result = await captureFrame(
-            objectBlobUrl,
-            chapter.start / 1000
-          );
-          if (result) {
-            chapterPreviews[chapter.id] = result;
-          }
-        }
+        console.log(response?.kind);
 
-        const editPreviews: any = {};
-        for (const edit of data.edits ?? []) {
-          const result = await captureFrame(
-            objectBlobUrl,
-            edit?.words[0].start / 1000
-          );
-          if (result) {
-            editPreviews[edit.id] = result;
+        if (response?.kind === Kind.Video) {
+          const chapterPreviews: any = {};
+          for (const chapter of data.chapters ?? []) {
+            const result = await captureFrame(
+              objectBlobUrl,
+              chapter.start / 1000
+            );
+            if (result) {
+              chapterPreviews[chapter.id] = result;
+            }
           }
-        }
 
-        localStorage.setItem(
-          "projectPreviewContainer",
-          JSON.stringify({ chapters: chapterPreviews, edits: editPreviews })
-        );
+          const editPreviews: any = {};
+          for (const edit of data.edits ?? []) {
+            const result = await captureFrame(
+              objectBlobUrl,
+              edit?.words[0].start / 1000
+            );
+            if (result) {
+              editPreviews[edit.id] = result;
+            }
+          }
+
+          localStorage.setItem(
+            "projectPreviewContainer",
+            JSON.stringify({ chapters: chapterPreviews, edits: editPreviews })
+          );
+        }
       } catch (e) {
         setNotfound(true);
       } finally {

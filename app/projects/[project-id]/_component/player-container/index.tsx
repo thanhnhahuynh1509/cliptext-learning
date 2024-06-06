@@ -15,6 +15,8 @@ import {
 import { useTranscript } from "@/stores/transcript-store";
 import { useDebounceValue } from "usehooks-ts";
 import { useGlobalSearch } from "@/stores/global-search-store";
+import { Kind } from "@/types/project-types";
+import { useProjects } from "@/stores/projects-store";
 
 interface PlayerContainerRef {
   setCurrentTime: (time: number) => void;
@@ -30,6 +32,7 @@ const PlayerContainer = ({
   const [debounceValue, setDebounceValue] = useDebounceValue("", 200);
 
   const { chapters, utterances, speakerMap } = useTranscript();
+  const { currentProject } = useProjects();
   const { setSearchType, setSearchValue } = useGlobalSearch();
 
   const onExportClick = () => {
@@ -79,20 +82,22 @@ const PlayerContainer = ({
           </TabsList>
 
           <div className="flex items-center gap-x-4">
-            <Hint label={`${onExpand ? "Shrink" : "Expand"}`}>
-              <Button
-                size={"icon"}
-                variant={"outline"}
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setOnExpand((prev) => !prev);
-                }}
-              >
-                <MoveUp
-                  className={`w-4 h-4 ${!onExpand ? "rotate-180" : "rotate-0"} transition-all ease-in-out duration-500`}
-                />
-              </Button>
-            </Hint>
+            {currentProject?.kind === Kind.Video && (
+              <Hint label={`${onExpand ? "Shrink" : "Expand"}`}>
+                <Button
+                  size={"icon"}
+                  variant={"outline"}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setOnExpand((prev) => !prev);
+                  }}
+                >
+                  <MoveUp
+                    className={`w-4 h-4 ${!onExpand ? "rotate-180" : "rotate-0"} transition-all ease-in-out duration-500`}
+                  />
+                </Button>
+              </Hint>
+            )}
 
             <SearchInput
               placeholder="transcript, speaker..."

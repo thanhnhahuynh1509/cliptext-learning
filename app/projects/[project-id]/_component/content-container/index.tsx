@@ -1,5 +1,4 @@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import SearchInput from "@/components/search-input";
 import { Pointer } from "lucide-react";
 import Edits from "./edits";
@@ -11,6 +10,8 @@ import { useTranscript } from "@/stores/transcript-store";
 import ExportButton from "./export-button";
 import { useDebounceValue } from "usehooks-ts";
 import { useGlobalSearch } from "@/stores/global-search-store";
+import { useProjects } from "@/stores/projects-store";
+import { Kind } from "@/types/project-types";
 
 interface ContentContainerProps {}
 
@@ -18,13 +19,14 @@ const ContentContainer = ({}: ContentContainerProps) => {
   const mediaEditRef = useRef<HTMLVideoElement>(null);
   const { objectUrl } = useMediaPlayerRef();
   const { edits } = useTranscript();
+  const { currentProject } = useProjects();
   const [currentTime, setCurrentTime] = useState(0);
   const [currentEdit, setCurrentEdit] = useState<Edit | undefined>();
   const [debounceValue, setDebounceValue] = useDebounceValue("", 200);
   const { setSearchType, setSearchValue } = useGlobalSearch();
 
   const trackingNoRenderState = useMemo<{
-    frameCallbackId: number;
+    frameCallbackId: any;
     currentWord?: HTMLSpanElement;
   }>(() => {
     return {
@@ -33,34 +35,16 @@ const ContentContainer = ({}: ContentContainerProps) => {
     };
   }, []);
 
-  const onUpdateFrame = useCallback(
-    (now: number, metadata: VideoFrameCallbackMetadata) => {
-      setCurrentTime(metadata.mediaTime);
-      trackingNoRenderState.frameCallbackId =
-        mediaEditRef?.current?.requestVideoFrameCallback(onUpdateFrame) || 0;
-    },
-    [trackingNoRenderState]
-  );
-
   useEffect(() => {
     if (objectUrl && mediaEditRef?.current && currentEdit) {
       if (objectUrl && !mediaEditRef?.current?.src) {
         mediaEditRef.current.src = objectUrl;
         mediaEditRef.current.load();
-
-        trackingNoRenderState.frameCallbackId =
-          mediaEditRef.current.requestVideoFrameCallback(onUpdateFrame);
       }
       const start = currentEdit?.words[0].start / 1000;
       mediaEditRef.current.currentTime = start;
     }
-  }, [
-    currentEdit,
-    objectUrl,
-    mediaEditRef,
-    trackingNoRenderState,
-    onUpdateFrame,
-  ]);
+  }, [currentEdit, objectUrl, mediaEditRef, trackingNoRenderState]);
 
   useEffect(() => {
     console.log(currentEdit);
@@ -114,12 +98,7 @@ const ContentContainer = ({}: ContentContainerProps) => {
 
   useEffect(() => {
     return () => {
-      if (mediaEditRef?.current) {
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-        mediaEditRef.current?.cancelVideoFrameCallback(
-          trackingNoRenderState.frameCallbackId
-        );
-      }
+      clearInterval(trackingNoRenderState.frameCallbackId);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -127,26 +106,73 @@ const ContentContainer = ({}: ContentContainerProps) => {
   return (
     <div className="flex flex-col gap-y-4 w-[40%] h-full pl-3 py-6 bg-white">
       <div className="flex flex-col gap-y-4 overflow-y-auto w-full h-full">
-        <div className="w-full aspect-[16/9] px-3 edit-video-container">
-          <video
-            id="edit-player"
-            controls
-            className={`w-full aspect-[16/9] rounded-sm ${!currentEdit && "hidden"}`}
-            ref={mediaEditRef}
-          />
+        {currentProject?.kind === Kind.Video && (
+          <div className="w-full aspect-[16/9] px-3 edit-video-container">
+            <video
+              id="edit-player"
+              controls
+              className={`w-full aspect-[16/9] rounded-sm ${!currentEdit && "hidden"}`}
+              ref={mediaEditRef}
+              onPlay={(e) => {
+                trackingNoRenderState.frameCallbackId = setInterval(
+                  () => {
+                    setCurrentTime(mediaEditRef.current?.currentTime ?? 0);
+                  },
+                  (1 / 24) * 1000
+                );
+              }}
+              onPause={() => {
+                clearInterval(trackingNoRenderState.frameCallbackId);
+              }}
+            />
 
-          {!currentEdit && (
-            <div className="w-full aspect-[16/9] bg-gray-800 rounded-sm relative">
-              <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 flex flex-col items-center">
-                <Pointer className="mt-6 w-8 h-8 text-white" />
+            {!currentEdit && (
+              <div className="w-full aspect-[16/9] bg-gray-800 rounded-sm relative">
+                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 flex flex-col items-center">
+                  <Pointer className="mt-6 w-8 h-8 text-white" />
 
-                <p className="font-normal text-sm text-white mt-6">
-                  Try to select an edit!
-                </p>
+                  <p className="font-normal text-sm text-white mt-6">
+                    Try to select an edit!
+                  </p>
+                </div>
               </div>
-            </div>
-          )}
-        </div>
+            )}
+          </div>
+        )}
+
+        {currentProject?.kind === Kind.Audio && (
+          <div className="w-full px-3 edit-video-container">
+            <audio
+              id="edit-player"
+              controls
+              className={`w-full rounded-sm ${!currentEdit && "hidden"}`}
+              ref={mediaEditRef}
+              onPlay={(e) => {
+                trackingNoRenderState.frameCallbackId = setInterval(
+                  () => {
+                    setCurrentTime(mediaEditRef.current?.currentTime ?? 0);
+                  },
+                  (1 / 24) * 1000
+                );
+              }}
+              onPause={() => {
+                clearInterval(trackingNoRenderState.frameCallbackId);
+              }}
+            />
+
+            {!currentEdit && (
+              <div className="w-full aspect-[16/9] bg-gray-800 rounded-sm relative">
+                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 flex flex-col items-center">
+                  <Pointer className="mt-6 w-8 h-8 text-white" />
+
+                  <p className="font-normal text-sm text-white mt-6">
+                    Try to select an edit!
+                  </p>
+                </div>
+              </div>
+            )}
+          </div>
+        )}
 
         <Tabs
           defaultValue="edits"

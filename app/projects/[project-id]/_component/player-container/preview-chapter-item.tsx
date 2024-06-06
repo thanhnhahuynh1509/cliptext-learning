@@ -45,6 +45,12 @@ const PreviewChapterItem = ({ chapter }: PreviewChapterItemProps) => {
         </>
       )}
 
+      {currentProject?.kind === Kind.Audio && (
+        <div className="w-full h-full flex items-center justify-center opacity-100 transition bg-blue-100 relative">
+          <Headphones className="w-4 h-4 text-muted-foreground absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2" />
+        </div>
+      )}
+
       <div className="absolute bottom-2 right-2 flex flex-col items-center justify-center opacity-100 transition gap-y-4">
         <span className="flex items-center justify-center px-2 py-1 rounded-md bg-black/50 text-white text-[12px]">
           {formatDuration((chapter.end - chapter.start) / 1000)}

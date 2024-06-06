@@ -2,6 +2,8 @@
 import React, { useEffect, useMemo, useRef } from "react";
 import { motion } from "framer-motion";
 import { useMediaPlayerRef } from "@/stores/media-player-ref-store";
+import { useProjects } from "@/stores/projects-store";
+import { Kind } from "@/types/project-types";
 
 interface PlayerProps {
   onExpand: boolean;
@@ -11,13 +13,14 @@ interface PlayerProps {
 
 const Player = ({ onExpand, currentTime, setCurrentTime }: PlayerProps) => {
   const mediaRef = useRef<HTMLVideoElement>(null);
+  const { currentProject } = useProjects();
   const { objectUrl, setMediaRefCurrent } = useMediaPlayerRef();
 
   const trackingNoRenderState = useMemo<{
-    frameCallbackId: number | undefined;
+    frameCallbackId: any | undefined;
     currentWord: HTMLSpanElement | undefined;
   }>(() => {
-    return { frameCallbackId: 0, currentWord: undefined };
+    return { frameCallbackId: undefined, currentWord: undefined };
   }, []);
 
   useEffect(() => {
@@ -53,44 +56,66 @@ const Player = ({ onExpand, currentTime, setCurrentTime }: PlayerProps) => {
   useEffect(() => {
     if (mediaRef.current) {
       setMediaRefCurrent(mediaRef.current);
-      const onUpdateFrame = (
-        now: number,
-        metadata: VideoFrameCallbackMetadata
-      ) => {
-        setCurrentTime(metadata.mediaTime);
-        trackingNoRenderState.frameCallbackId =
-          mediaRef.current?.requestVideoFrameCallback(onUpdateFrame);
-      };
-      trackingNoRenderState.frameCallbackId =
-        mediaRef.current?.requestVideoFrameCallback(onUpdateFrame);
     }
   }, [setCurrentTime, setMediaRefCurrent]);
 
   useEffect(() => {
     return () => {
-      mediaRef.current?.cancelVideoFrameCallback(
-        trackingNoRenderState.frameCallbackId!
-      );
+      clearInterval(trackingNoRenderState.frameCallbackId);
     };
   }, []);
 
   return (
     <div className="w-full relative">
       <motion.div
-        animate={{ height: `${!onExpand ? "250px" : "auto"}` }}
-        className={` flex items-start gap-x-4 w-full`}
+        animate={{
+          height: `${!onExpand && currentProject?.kind === Kind.Video ? "250px" : "auto"}`,
+        }}
+        className={`flex items-start gap-x-4 w-full`}
       >
-        <video
-          id="media-player"
-          className={`bg-slate-200 w-full h-full aspect-[16/9] object-container ${onExpand ? "rounded-md" : "rounded-sm"}`}
-          controls={true}
-          ref={mediaRef}
-          onTimeUpdate={(e) => {
-            setCurrentTime(e.currentTarget.currentTime);
-          }}
-        >
-          <source src={objectUrl} />
-        </video>
+        {currentProject?.kind === Kind.Video && (
+          <video
+            id="media-player"
+            className={`bg-slate-200 w-full h-full aspect-[16/9] object-container ${onExpand ? "rounded-md" : "rounded-sm"}`}
+            controls={true}
+            ref={mediaRef}
+            onPlay={(e) => {
+              trackingNoRenderState.frameCallbackId = setInterval(
+                () => {
+                  setCurrentTime(mediaRef.current?.currentTime ?? 0);
+                },
+                (1 / 24) * 1000
+              );
+            }}
+            onPause={() => {
+              clearInterval(trackingNoRenderState.frameCallbackId);
+            }}
+          >
+            <source src={objectUrl} />
+          </video>
+        )}
+
+        {currentProject?.kind === Kind.Audio && (
+          <audio
+            id="media-player"
+            className={`w-full`}
+            controls={true}
+            ref={mediaRef}
+            onPlay={(e) => {
+              trackingNoRenderState.frameCallbackId = setInterval(
+                () => {
+                  setCurrentTime(mediaRef.current?.currentTime ?? 0);
+                },
+                (1 / 24) * 1000
+              );
+            }}
+            onPause={() => {
+              clearInterval(trackingNoRenderState.frameCallbackId);
+            }}
+          >
+            <source src={objectUrl} />
+          </audio>
+        )}
       </motion.div>
     </div>
   );
