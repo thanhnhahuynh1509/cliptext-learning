@@ -8,10 +8,21 @@ import {
   DropdownMenuShortcut,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { exportEditToDocx, exportEditToMP4 } from "@/exports/exporter";
+import {
+  exportEditToDocx,
+  exportEditToMP3,
+  exportEditToMP4,
+} from "@/exports/exporter";
 import { useProjects } from "@/stores/projects-store";
 import { useTranscript } from "@/stores/transcript-store";
-import { ArrowDownToLine, FileType, Film, LoaderCircle } from "lucide-react";
+import { Kind } from "@/types/project-types";
+import {
+  ArrowDownToLine,
+  FileType,
+  Film,
+  Headphones,
+  LoaderCircle,
+} from "lucide-react";
 import React, { useState } from "react";
 import { toast } from "sonner";
 
@@ -19,6 +30,7 @@ const ExportButton = () => {
   const { edits } = useTranscript();
   const { currentProject } = useProjects();
   const [onExportMP4, setOnExportMP4] = useState(false);
+  const [onExportMP3, setOnExportMP3] = useState(false);
 
   return (
     <DropdownMenu>
@@ -42,35 +54,68 @@ const ExportButton = () => {
         </DropdownMenuItem>
         <DropdownMenuItem
           className="cursor-pointer"
-          disabled={onExportMP4}
+          disabled={onExportMP3}
           onClick={async () => {
-            setOnExportMP4(true);
-            toast.info("Exporting your edits...");
+            setOnExportMP3(true);
+            toast.info("Exporting your audio edits...");
             try {
-              await exportEditToMP4(
+              await exportEditToMP3(
                 currentProject?.id!,
                 currentProject?.url!,
                 currentProject?.name!
               );
-              toast.success("Exported your edits mp4 successfully!");
+              toast.success("Exported your audio edits successfully!");
             } catch (e) {
               toast.error(
-                "Couldn't export your edits mp4! Please try again or contact support."
+                "Couldn't export your audio edits! Please try again or contact support."
               );
             } finally {
-              setOnExportMP4(false);
+              setOnExportMP3(false);
             }
           }}
         >
           {!onExportMP4 && (
-            <Film className="w-4 h-4 text-muted-foreground mr-2" />
+            <Headphones className="w-4 h-4 text-muted-foreground mr-2" />
           )}
           {onExportMP4 && (
             <LoaderCircle className="w-4 h-4 text-muted-foreground mr-2 animate-spin" />
           )}
-          Video
-          <DropdownMenuShortcut>.mp4</DropdownMenuShortcut>
+          Audio
+          <DropdownMenuShortcut>.mp3</DropdownMenuShortcut>
         </DropdownMenuItem>
+        {currentProject?.kind === Kind.Video && (
+          <DropdownMenuItem
+            className="cursor-pointer"
+            disabled={onExportMP4}
+            onClick={async () => {
+              setOnExportMP4(true);
+              toast.info("Exporting your edits...");
+              try {
+                await exportEditToMP4(
+                  currentProject?.id!,
+                  currentProject?.url!,
+                  currentProject?.name!
+                );
+                toast.success("Exported your video edits successfully!");
+              } catch (e) {
+                toast.error(
+                  "Couldn't export your video edits! Please try again or contact support."
+                );
+              } finally {
+                setOnExportMP4(false);
+              }
+            }}
+          >
+            {!onExportMP4 && (
+              <Film className="w-4 h-4 text-muted-foreground mr-2" />
+            )}
+            {onExportMP4 && (
+              <LoaderCircle className="w-4 h-4 text-muted-foreground mr-2 animate-spin" />
+            )}
+            Video
+            <DropdownMenuShortcut>.mp4</DropdownMenuShortcut>
+          </DropdownMenuItem>
+        )}
       </DropdownMenuContent>
     </DropdownMenu>
   );

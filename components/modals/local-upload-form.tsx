@@ -149,7 +149,6 @@ const LocalUploadForm = () => {
         URL.revokeObjectURL(videoRef.current.src);
       }
       videoRef.current.src = URL.createObjectURL(files[0]);
-      console.log(files[0].type);
       (videoRef.current as any).type = files[0].type;
       videoRef.current.load();
     }

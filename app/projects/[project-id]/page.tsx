@@ -56,8 +56,6 @@ const ProjectPage = ({ params }: ProjectPageProps) => {
         const objectBlobUrl = URL.createObjectURL(blobData);
         setObjectUrl(objectBlobUrl);
 
-        console.log(response?.kind);
-
         if (response?.kind === Kind.Video) {
           const chapterPreviews: any = {};
           for (const chapter of data.chapters ?? []) {

@@ -167,3 +167,10 @@ export async function exportMP4(id: string, input: string) {
   );
   return response.data;
 }
+
+export async function exportMP3(id: string, input: string) {
+  const response = await axios.post(
+    `${PROJECT_ENDPOINT}/${id}/export-mp3?input=${input}`
+  );
+  return response.data;
+}

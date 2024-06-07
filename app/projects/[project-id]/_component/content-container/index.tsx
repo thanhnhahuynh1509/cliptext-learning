@@ -47,7 +47,6 @@ const ContentContainer = ({}: ContentContainerProps) => {
   }, [currentEdit, objectUrl, mediaEditRef, trackingNoRenderState]);
 
   useEffect(() => {
-    console.log(currentEdit);
     if (currentEdit && mediaEditRef?.current) {
       const end = currentEdit?.words[currentEdit?.words?.length - 1].end / 1000;
 

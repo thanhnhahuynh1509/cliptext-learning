@@ -1,4 +1,4 @@
-import { exportMP4 } from "@/api/project";
+import { exportMP3, exportMP4 } from "@/api/project";
 import { SERVER_ENDPOINT } from "@/config/server-config";
 import { formatDuration } from "@/lib/utils";
 import { Chapter, Edit, Speaker, Utterance } from "@/types/transcript-types";
@@ -162,17 +162,6 @@ export const exportEditToDocx = (edits: Edit[]) => {
   });
 };
 
-export const exportEditToMP4 = async (
-  projectId: string,
-  projectInput: string,
-  projectName: string
-) => {
-  const output = await exportMP4(projectId, projectInput);
-  const mediaResponse = await fetch(SERVER_ENDPOINT + "/" + output);
-  const blobData = await mediaResponse.blob();
-  saveAs(blobData, `${projectName}.mp4`);
-};
-
 function convertTimeString(timeString: string) {
   const parts = timeString.split(":").map(Number);
 
@@ -199,3 +188,25 @@ function convertTimeString(timeString: string) {
 
   return result || "0s"; // Return '0s' if all components are zero
 }
+
+export const exportEditToMP4 = async (
+  projectId: string,
+  projectInput: string,
+  projectName: string
+) => {
+  const output = await exportMP4(projectId, projectInput);
+  const mediaResponse = await fetch(SERVER_ENDPOINT + "/" + output);
+  const blobData = await mediaResponse.blob();
+  saveAs(blobData, `${projectName}.mp4`);
+};
+
+export const exportEditToMP3 = async (
+  projectId: string,
+  projectInput: string,
+  projectName: string
+) => {
+  const output = await exportMP3(projectId, projectInput);
+  const mediaResponse = await fetch(SERVER_ENDPOINT + "/" + output);
+  const blobData = await mediaResponse.blob();
+  saveAs(blobData, `${projectName}.mp3`);
+};
