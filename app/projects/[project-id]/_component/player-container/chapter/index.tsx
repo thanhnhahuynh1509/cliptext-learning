@@ -19,7 +19,7 @@ const Chapters = () => {
   useEffect(() => {
     if (searchType === "chapters") {
       const search = searchValue?.toLocaleLowerCase() || "";
-      setHandledChapters((prev) =>
+      setHandledChapters(() =>
         chapters?.filter(
           (chapter) =>
             chapter.summary?.toLowerCase()?.includes(search) ||

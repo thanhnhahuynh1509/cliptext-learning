@@ -6,6 +6,10 @@ import WordItem from "./word-item";
 import { useTranscript } from "@/stores/transcript-store";
 import { useSelection } from "@/stores/selection-store";
 import { useMediaPlayerRef } from "@/stores/media-player-ref-store";
+import { useGlobalToggleState } from "@/stores/global-toggle-state-store";
+import { toast } from "sonner";
+import { updateUtterances, updateWords } from "@/api/project";
+import { useProjects } from "@/stores/projects-store";
 
 const jostFont = Jost({
   subsets: ["latin"],
@@ -17,8 +21,15 @@ interface UtteranceWordsItemProps {
 }
 
 const UtteranceWordsItem = ({ handledUtterance }: UtteranceWordsItemProps) => {
-  const { words: transcriptWords } = useTranscript();
+  const {
+    words: transcriptWords,
+    utterances,
+    setWords,
+    setUtterances,
+  } = useTranscript();
+  const { onTranscriptEditMode } = useGlobalToggleState();
   const { mediaRefCurrent } = useMediaPlayerRef();
+  const { currentProject } = useProjects();
   const { setSelectionRect, setSelectionMenuVisible, setSelectionWords } =
     useSelection();
 
@@ -71,6 +82,44 @@ const UtteranceWordsItem = ({ handledUtterance }: UtteranceWordsItemProps) => {
     transcriptWords,
   ]);
 
+  const onEditWordBlur = useCallback(
+    async (
+      utteranceId: string,
+      e: React.FocusEvent<HTMLSpanElement, Element>,
+      word: Word
+    ) => {
+      const content = e.target.textContent?.trim() ?? "";
+      if (!content) {
+        e.target.textContent = word.text;
+        toast.error("Doesn't allow empty word!");
+      } else {
+        const foundedWord = transcriptWords?.find(
+          (item) => item.id === word.id
+        );
+        const foundedUtteranceWord = utterances
+          ?.find((item) => item.id === utteranceId)
+          ?.words?.find((item) => item.id === word.id);
+
+        try {
+          if (foundedWord && foundedUtteranceWord) {
+            foundedWord.text = content;
+            foundedUtteranceWord.text = content;
+
+            setWords(transcriptWords ?? []);
+            setUtterances(utterances ?? []);
+            updateWords(currentProject?.id!, transcriptWords ?? []);
+            updateUtterances(currentProject?.id!, utterances ?? []);
+          }
+        } catch (e) {
+          toast.error(
+            "Couldn't update words, please try again or contact support!"
+          );
+        }
+      }
+    },
+    [currentProject?.id, setUtterances, setWords, transcriptWords, utterances]
+  );
+
   const renderedUtterances = useMemo(() => {
     return handledUtterance?.words?.map((words: Word[], idx: number) => {
       const startMs = words[0]?.start;
@@ -78,7 +127,11 @@ const UtteranceWordsItem = ({ handledUtterance }: UtteranceWordsItemProps) => {
         <div
           key={idx}
           className="pl-[150px] flex gap-x-4 w-full"
-          onMouseUp={onMouseUp}
+          onMouseUp={() => {
+            if (!onTranscriptEditMode) {
+              onMouseUp();
+            }
+          }}
         >
           <p
             className={cn(
@@ -97,6 +150,10 @@ const UtteranceWordsItem = ({ handledUtterance }: UtteranceWordsItemProps) => {
                   word={word}
                   onClick={onClickWord}
                   className="word"
+                  isEditable={onTranscriptEditMode}
+                  onBlur={(e, word) => {
+                    onEditWordBlur(handledUtterance.id, e, word);
+                  }}
                 />
               );
             })}
@@ -104,7 +161,14 @@ const UtteranceWordsItem = ({ handledUtterance }: UtteranceWordsItemProps) => {
         </div>
       );
     });
-  }, [handledUtterance?.words, onClickWord, onMouseUp]);
+  }, [
+    handledUtterance.id,
+    handledUtterance?.words,
+    onClickWord,
+    onEditWordBlur,
+    onMouseUp,
+    onTranscriptEditMode,
+  ]);
 
   return <>{renderedUtterances}</>;
 };

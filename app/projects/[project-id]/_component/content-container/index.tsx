@@ -12,6 +12,7 @@ import { useDebounceValue } from "usehooks-ts";
 import { useGlobalSearch } from "@/stores/global-search-store";
 import { useProjects } from "@/stores/projects-store";
 import { Kind } from "@/types/project-types";
+import { motion } from "framer-motion";
 
 interface ContentContainerProps {}
 
@@ -102,80 +103,65 @@ const ContentContainer = ({}: ContentContainerProps) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  const onPlay = useCallback(() => {
+    clearInterval(trackingNoRenderState.frameCallbackId);
+    trackingNoRenderState.frameCallbackId = setInterval(
+      () => {
+        setCurrentTime(mediaEditRef.current?.currentTime ?? 0);
+      },
+      (1 / 24) * 1000
+    );
+  }, [trackingNoRenderState]);
+
+  const onPause = useCallback(() => {
+    clearInterval(trackingNoRenderState.frameCallbackId);
+  }, [trackingNoRenderState.frameCallbackId]);
+
   return (
     <div className="flex flex-col gap-y-4 w-[40%] h-full pl-3 py-6 bg-white">
-      <div className="flex flex-col gap-y-4 overflow-y-auto w-full h-full">
-        {currentProject?.kind === Kind.Video && (
-          <div className="w-full aspect-[16/9] px-3 edit-video-container">
-            <video
-              id="edit-player"
-              controls
-              className={`w-full aspect-[16/9] rounded-sm ${!currentEdit && "hidden"}`}
-              ref={mediaEditRef}
-              onPlay={(e) => {
-                trackingNoRenderState.frameCallbackId = setInterval(
-                  () => {
-                    setCurrentTime(mediaEditRef.current?.currentTime ?? 0);
-                  },
-                  (1 / 24) * 1000
-                );
-              }}
-              onPause={() => {
-                clearInterval(trackingNoRenderState.frameCallbackId);
-              }}
-            />
+      <div className="flex flex-col gap-y-4 overflow-hidden w-full h-full">
+        <motion.div className="w-full px-3 edit-video-container">
+          {currentProject?.kind === Kind.Video && (
+            <>
+              <video
+                id="edit-player"
+                controls
+                className={`w-full aspect-[16/9] rounded-sm ${!currentEdit && "hidden"}`}
+                ref={mediaEditRef}
+                onPlay={onPlay}
+                onPause={onPause}
+              />
+            </>
+          )}
+          {currentProject?.kind === Kind.Audio && (
+            <>
+              <audio
+                id="edit-player"
+                controls
+                className={`w-full rounded-sm ${!currentEdit && "hidden"}`}
+                ref={mediaEditRef}
+                onPlay={onPlay}
+                onPause={onPause}
+              />
+            </>
+          )}
 
-            {!currentEdit && (
-              <div className="w-full aspect-[16/9] bg-gray-800 rounded-sm relative">
-                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 flex flex-col items-center">
-                  <Pointer className="mt-6 w-8 h-8 text-white" />
+          {!currentEdit && (
+            <div className="w-full aspect-[16/9] bg-gray-800 rounded-sm relative">
+              <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 flex flex-col items-center">
+                <Pointer className="mt-6 w-8 h-8 text-white" />
 
-                  <p className="font-normal text-sm text-white mt-6">
-                    Try to select an edit!
-                  </p>
-                </div>
+                <p className="font-normal text-sm text-white mt-6">
+                  Try to select an edit!
+                </p>
               </div>
-            )}
-          </div>
-        )}
-
-        {currentProject?.kind === Kind.Audio && (
-          <div className="w-full px-3 edit-video-container">
-            <audio
-              id="edit-player"
-              controls
-              className={`w-full rounded-sm ${!currentEdit && "hidden"}`}
-              ref={mediaEditRef}
-              onPlay={(e) => {
-                trackingNoRenderState.frameCallbackId = setInterval(
-                  () => {
-                    setCurrentTime(mediaEditRef.current?.currentTime ?? 0);
-                  },
-                  (1 / 24) * 1000
-                );
-              }}
-              onPause={() => {
-                clearInterval(trackingNoRenderState.frameCallbackId);
-              }}
-            />
-
-            {!currentEdit && (
-              <div className="w-full aspect-[16/9] bg-gray-800 rounded-sm relative">
-                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 flex flex-col items-center">
-                  <Pointer className="mt-6 w-8 h-8 text-white" />
-
-                  <p className="font-normal text-sm text-white mt-6">
-                    Try to select an edit!
-                  </p>
-                </div>
-              </div>
-            )}
-          </div>
-        )}
+            </div>
+          )}
+        </motion.div>
 
         <Tabs
           defaultValue="edits"
-          className="w-full h-full px-3 flex flex-col items-start overflow-y-auto"
+          className="w-full h-full px-3 flex flex-col items-start"
         >
           <div className="flex items-center justify-between py-2 w-full">
             <TabsList>

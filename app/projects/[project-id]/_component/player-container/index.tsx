@@ -1,22 +1,12 @@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import Transcript from "./transcript";
 import Player from "./player";
-import SearchInput from "@/components/search-input";
-import { Button } from "@/components/ui/button";
-import { FileDown, MoveUp } from "lucide-react";
-import Chapters from "./chapters";
-import { memo, useEffect, useState } from "react";
+import Chapters from "./chapter";
+import { memo, useState } from "react";
 import TranscriptMenu from "./transcript-menu";
-import Hint from "@/components/hint";
-import {
-  exportChaptersToDocx,
-  exportTranscriptToDocx,
-} from "@/exports/exporter";
-import { useTranscript } from "@/stores/transcript-store";
-import { useDebounceValue } from "usehooks-ts";
-import { useGlobalSearch } from "@/stores/global-search-store";
-import { Kind } from "@/types/project-types";
-import { useProjects } from "@/stores/projects-store";
+
+import TranscriptActionBar from "./transcript-action-bar";
+import { useGlobalToggleState } from "@/stores/global-toggle-state-store";
 
 interface PlayerContainerRef {
   setCurrentTime: (time: number) => void;
@@ -27,27 +17,8 @@ const PlayerContainer = ({
   setCurrentTime,
   currentTime,
 }: PlayerContainerRef) => {
-  const [onExpand, setOnExpand] = useState(false);
+  const { onExpand } = useGlobalToggleState();
   const [currentTab, setCurrentTab] = useState("transcript");
-  const [debounceValue, setDebounceValue] = useDebounceValue("", 200);
-
-  const { chapters, utterances, speakerMap } = useTranscript();
-  const { currentProject } = useProjects();
-  const { setSearchType, setSearchValue } = useGlobalSearch();
-
-  const onExportClick = () => {
-    if (currentTab === "transcript") {
-      exportTranscriptToDocx(utterances ?? [], speakerMap ?? {});
-    } else {
-      exportChaptersToDocx(chapters ?? []);
-    }
-  };
-
-  useEffect(() => {
-    setSearchType(currentTab);
-    setSearchValue(debounceValue);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [debounceValue, setSearchType, setSearchValue]);
 
   return (
     <div className="flex-1 bg-white flex flex-col gap-y-4 h-full pl-6 py-6 ">
@@ -81,38 +52,7 @@ const PlayerContainer = ({
             </TabsTrigger>
           </TabsList>
 
-          <div className="flex items-center gap-x-4">
-            {currentProject?.kind === Kind.Video && (
-              <Hint label={`${onExpand ? "Shrink" : "Expand"}`}>
-                <Button
-                  size={"icon"}
-                  variant={"outline"}
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    setOnExpand((prev) => !prev);
-                  }}
-                >
-                  <MoveUp
-                    className={`w-4 h-4 ${!onExpand ? "rotate-180" : "rotate-0"} transition-all ease-in-out duration-500`}
-                  />
-                </Button>
-              </Hint>
-            )}
-
-            <SearchInput
-              placeholder="transcript, speaker..."
-              onChange={(e) => setDebounceValue(e.target.value)}
-            />
-            <Hint label="Export to Word">
-              <Button
-                size={"icon"}
-                className="bg-blue-500 hover:bg-blue-600"
-                onClick={onExportClick}
-              >
-                <FileDown className="w-4 h-4" />
-              </Button>
-            </Hint>
-          </div>
+          <TranscriptActionBar currentTab={currentTab} />
         </div>
 
         <TabsContent value="transcript" className="w-full h-full flex-1">

@@ -74,10 +74,10 @@ const ExportButton = () => {
             }
           }}
         >
-          {!onExportMP4 && (
+          {!onExportMP3 && (
             <Headphones className="w-4 h-4 text-muted-foreground mr-2" />
           )}
-          {onExportMP4 && (
+          {onExportMP3 && (
             <LoaderCircle className="w-4 h-4 text-muted-foreground mr-2 animate-spin" />
           )}
           Audio

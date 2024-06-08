@@ -11,11 +11,21 @@ const jostFont = Jost({
 interface WordItemProps {
   word: Word;
   onClick?: (word: Word) => void;
+  onBlur?: (
+    event: React.FocusEvent<HTMLSpanElement, Element>,
+    word: Word
+  ) => void;
   isEditable?: boolean;
   className?: string;
 }
 
-const WordItem = ({ word, className, isEditable, onClick }: WordItemProps) => {
+const WordItem = ({
+  word,
+  className,
+  isEditable,
+  onClick,
+  onBlur,
+}: WordItemProps) => {
   return (
     <>
       <span
@@ -27,10 +37,18 @@ const WordItem = ({ word, className, isEditable, onClick }: WordItemProps) => {
           jostFont.className,
           className
         )}
+        contentEditable={isEditable}
+        spellCheck={false}
+        suppressContentEditableWarning
         onClick={(e) => {
           e.stopPropagation();
           if (onClick) {
             onClick(word);
+          }
+        }}
+        onBlur={(e) => {
+          if (onBlur) {
+            onBlur(e, word);
           }
         }}
       >
