@@ -25,8 +25,11 @@ const Edits = ({ currentEdit, setCurrentEdit }: EditsProps) => {
       const updatedEdit = edits?.filter((edit) => edit.id !== id);
       setEdits(updatedEdit);
       updateEdit(currentProject?.id!, updatedEdit || []);
+      if (currentEdit?.id === id) {
+        setCurrentEdit(undefined);
+      }
     },
-    [currentProject?.id, edits, setEdits]
+    [currentEdit?.id, currentProject?.id, edits, setCurrentEdit, setEdits]
   );
 
   useEffect(() => {

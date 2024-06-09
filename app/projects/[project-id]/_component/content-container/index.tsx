@@ -121,7 +121,7 @@ const ContentContainer = ({}: ContentContainerProps) => {
     <div className="flex flex-col gap-y-4 w-[40%] h-full pl-3 py-6 bg-white">
       <div className="flex flex-col gap-y-4 overflow-hidden w-full h-full">
         <motion.div className="w-full px-3 edit-video-container">
-          {currentProject?.kind === Kind.Video && (
+          {currentEdit && currentProject?.kind === Kind.Video && (
             <>
               <video
                 id="edit-player"
@@ -133,7 +133,7 @@ const ContentContainer = ({}: ContentContainerProps) => {
               />
             </>
           )}
-          {currentProject?.kind === Kind.Audio && (
+          {currentEdit && currentProject?.kind === Kind.Audio && (
             <>
               <audio
                 id="edit-player"
@@ -181,12 +181,7 @@ const ContentContainer = ({}: ContentContainerProps) => {
             value="edits"
             className="w-full h-full overflow-hidden flex-1"
           >
-            <Edits
-              currentEdit={currentEdit}
-              setCurrentEdit={(edit?: Edit) => {
-                setCurrentEdit(edit);
-              }}
-            />
+            <Edits currentEdit={currentEdit} setCurrentEdit={setCurrentEdit} />
           </TabsContent>
         </Tabs>
       </div>
