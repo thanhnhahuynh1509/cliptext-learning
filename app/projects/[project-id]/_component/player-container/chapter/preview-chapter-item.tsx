@@ -1,11 +1,17 @@
-import { formatDuration } from "@/lib/utils";
+import { cn, formatDuration } from "@/lib/utils";
 import { useMediaPlayerRef } from "@/stores/media-player-ref-store";
 import { useProjects } from "@/stores/projects-store";
 import { Kind } from "@/types/project-types";
 import { Chapter } from "@/types/transcript-types";
 import { Headphones } from "lucide-react";
+import { Jost } from "next/font/google";
 import Image from "next/image";
 import React, { useEffect, useState } from "react";
+
+const jostFont = Jost({
+  subsets: ["latin"],
+  weight: "400",
+});
 
 interface PreviewChapterItemProps {
   chapter: Chapter;
@@ -52,7 +58,12 @@ const PreviewChapterItem = ({ chapter }: PreviewChapterItemProps) => {
       )}
 
       <div className="absolute bottom-2 right-2 flex flex-col items-center justify-center opacity-100 transition gap-y-4">
-        <span className="flex items-center justify-center px-2 py-1 rounded-md bg-black/50 text-white text-[12px]">
+        <span
+          className={cn(
+            "flex items-center justify-center px-2 py-1 rounded-md bg-black/50 text-white text-[12px]",
+            jostFont.className
+          )}
+        >
           {formatDuration((chapter.end - chapter.start) / 1000)}
         </span>
       </div>

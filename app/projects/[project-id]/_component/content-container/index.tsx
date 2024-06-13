@@ -177,10 +177,7 @@ const ContentContainer = ({}: ContentContainerProps) => {
             </div>
           </div>
 
-          <TabsContent
-            value="edits"
-            className="w-full h-full overflow-hidden flex-1"
-          >
+          <TabsContent value="edits" className="w-full h-full flex-1">
             <Edits currentEdit={currentEdit} setCurrentEdit={setCurrentEdit} />
           </TabsContent>
         </Tabs>
