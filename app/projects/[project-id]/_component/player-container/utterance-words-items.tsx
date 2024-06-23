@@ -21,7 +21,6 @@ interface UtteranceWordsItemProps {
 }
 
 const UtteranceWordsItem = ({ utterance }: UtteranceWordsItemProps) => {
-  console.log(utterance);
   const {
     words: transcriptWords,
     utterances,

@@ -1,12 +1,20 @@
-import React, { memo, useEffect, useState } from "react";
+import React, { RefObject, memo, useEffect, useState } from "react";
 import UtteranceItem from "./utterance-item";
 import { useTranscript } from "@/stores/transcript-store";
 import { Utterance, Word } from "@/types/transcript-types";
-import { Virtuoso } from "react-virtuoso";
+import { Virtuoso, VirtuosoHandle } from "react-virtuoso";
 import { useSpeakerModifier } from "@/stores/speaker-modifier-store";
 import { useGlobalSearch } from "@/stores/global-search-store";
 
-const UtterancesList = () => {
+interface UtterancesListProps {
+  virtuoso: RefObject<VirtuosoHandle>;
+  setScrollUtterances: (utterances: Utterance[]) => void;
+}
+
+const UtterancesList = ({
+  virtuoso,
+  setScrollUtterances,
+}: UtterancesListProps) => {
   const { utterances, speakerMap } = useTranscript();
   const [handledUtterances, setHandleUtterances] = useState<any>();
   const [searchHandledUtterances, setSearchHandledUtterances] = useState<
@@ -43,17 +51,19 @@ const UtterancesList = () => {
         }
         setHandleUtterances(results);
         setSearchHandledUtterances(results);
+        setScrollUtterances(results);
       }
     } finally {
       setOnLoading(false);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [utterances]);
 
   useEffect(() => {
     if (searchType == "transcript") {
       const search = searchValue?.toLocaleLowerCase() || "";
-      setSearchHandledUtterances((prev) =>
-        handledUtterances?.filter((utterance: Utterance) => {
+      const updatedUtterances = handledUtterances?.filter(
+        (utterance: Utterance) => {
           const text = utterance.words
             .reduce((acc, word) => {
               return acc + " " + word.text;
@@ -63,8 +73,10 @@ const UtterancesList = () => {
             utterance.speaker
           ]?.toLowerCase();
           return text?.includes(search) || speakerName?.includes(search);
-        })
+        }
       );
+      setSearchHandledUtterances((prev) => updatedUtterances);
+      setScrollUtterances(updatedUtterances);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchValue]);
@@ -92,6 +104,7 @@ const UtterancesList = () => {
             </div>
           )}
           <Virtuoso
+            ref={virtuoso}
             className="w-full h-full gap-y-4"
             data={searchHandledUtterances}
             onScroll={(e) => {
@@ -102,7 +115,11 @@ const UtterancesList = () => {
             }}
             itemContent={(index, utterance) => {
               return (
-                <UtteranceItem key={utterance?.id} utterance={utterance} />
+                <UtteranceItem
+                  key={utterance?.id}
+                  index={index}
+                  utterance={utterance}
+                />
               );
             }}
           />
