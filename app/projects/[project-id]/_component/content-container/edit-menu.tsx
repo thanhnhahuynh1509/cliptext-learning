@@ -1,6 +1,6 @@
 import Hint from "@/components/hint";
 import { Button } from "@/components/ui/button";
-import { CircleX, Copy, Grip } from "lucide-react";
+import { CircleX } from "lucide-react";
 import React from "react";
 
 interface EditMenuProps {
@@ -9,7 +9,7 @@ interface EditMenuProps {
 
 const EditMenu = ({ onDeleteClick }: EditMenuProps) => {
   return (
-    <div className="absolute top-0 right-2 -translate-y-[50%] bg-white border p-2 rounded-md opacity-0 group-hover:opacity-100 flex gap-x-2">
+    <div className="absolute top-2 right-2 -translate-y-[50%] bg-white border p-2 rounded-md opacity-0 group-hover:opacity-100 flex gap-x-2">
       {/* <Hint label="Drag" sideOffset={10} side="bottom">
         <Button
           size={"icon"}

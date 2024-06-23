@@ -3,16 +3,16 @@ import UtteranceWordsItem from "./utterance-words-items";
 import UtteranceItemSpeaker from "./utterance-item-speaker";
 
 interface UtteranceItemProps {
-  handledUtterance: any;
+  utterance: any;
 }
 
-const UtteranceItem = ({ handledUtterance }: UtteranceItemProps) => {
+const UtteranceItem = ({ utterance }: UtteranceItemProps) => {
   return (
     <div className="w-full flex items-start flex-col gap-x-4">
-      <UtteranceItemSpeaker speaker={handledUtterance.speaker} />
+      <UtteranceItemSpeaker utterance={utterance} />
 
       <div className="flex flex-col gap-y-4">
-        <UtteranceWordsItem handledUtterance={handledUtterance} />
+        <UtteranceWordsItem utterance={utterance} />
       </div>
     </div>
   );

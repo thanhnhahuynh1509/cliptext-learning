@@ -1,15 +1,17 @@
 import React, { memo, useEffect, useState } from "react";
 import UtteranceItem from "./utterance-item";
 import { useTranscript } from "@/stores/transcript-store";
-import { Word } from "@/types/transcript-types";
+import { Utterance, Word } from "@/types/transcript-types";
 import { Virtuoso } from "react-virtuoso";
 import { useSpeakerModifier } from "@/stores/speaker-modifier-store";
 import { useGlobalSearch } from "@/stores/global-search-store";
 
 const UtterancesList = () => {
   const { utterances, speakerMap } = useTranscript();
-  const [resultUtterances, setResultUtterances] = useState(utterances);
   const [handledUtterances, setHandleUtterances] = useState<any>();
+  const [searchHandledUtterances, setSearchHandledUtterances] = useState<
+    Utterance[]
+  >([]);
   const [onLoading, setOnLoading] = useState(true);
   const { searchValue, searchType } = useGlobalSearch();
 
@@ -21,59 +23,68 @@ const UtterancesList = () => {
   } = useSpeakerModifier();
 
   useEffect(() => {
-    setResultUtterances(utterances);
-  }, [utterances]);
-
-  useEffect(() => {
     try {
       setOnLoading(true);
-      if (resultUtterances) {
+      if (utterances) {
         const results = [];
-        for (const utterance of resultUtterances) {
-          let groupWords: Word[][] = [];
-          const handledUtterance = { ...utterance, words: groupWords };
-          let words = [];
-          for (const word of utterance?.words) {
+        for (const utterance of utterances) {
+          let words: Word[] = [];
+          for (const word of utterance.words) {
             words.push(word);
             if (/[.!?]/.test(word.text)) {
-              handledUtterance.words.push(words);
+              results.push({ ...utterance, words: words });
               words = [];
             }
           }
-          if (words.length) {
-            handledUtterance.words.push(words);
+          if (words?.length) {
+            results.push({ ...utterance, words: words });
             words = [];
           }
-          results.push(handledUtterance);
         }
         setHandleUtterances(results);
+        setSearchHandledUtterances(results);
       }
     } finally {
       setOnLoading(false);
     }
-  }, [resultUtterances]);
+  }, [utterances]);
 
   useEffect(() => {
     if (searchType == "transcript") {
       const search = searchValue?.toLocaleLowerCase() || "";
-      setResultUtterances((prev) =>
-        utterances?.filter(
-          (utterance) =>
-            utterance.text?.toLowerCase()?.includes(search) ||
-            (speakerMap ?? {})[utterance.speaker]
-              ?.toLowerCase()
-              ?.includes(search)
-        )
+      setSearchHandledUtterances((prev) =>
+        handledUtterances?.filter((utterance: Utterance) => {
+          const text = utterance.words
+            .reduce((acc, word) => {
+              return acc + " " + word.text;
+            }, "")
+            ?.toLowerCase();
+          const speakerName = (speakerMap ?? {})[
+            utterance.speaker
+          ]?.toLowerCase();
+          return text?.includes(search) || speakerName?.includes(search);
+        })
       );
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchValue]);
 
+  useEffect(() => {
+    if (searchHandledUtterances) {
+      searchHandledUtterances.forEach((utterance, idx) => {
+        if (idx > 0) {
+          (utterance as any).shameSpeaker =
+            utterance.speaker === searchHandledUtterances[idx - 1].speaker;
+        }
+      });
+    }
+  }, [searchHandledUtterances]);
+
   return (
     <div className="relative w-full h-full">
       {!onLoading && (
         <>
-          {(handledUtterances?.length || 0) <= 0 && (
+          {(searchHandledUtterances?.length || 0) <= 0 && (
             <div className="flex flex-col items-center">
               <h2 className="text-muted-foreground">
                 Does not have any transcript!
@@ -82,7 +93,7 @@ const UtterancesList = () => {
           )}
           <Virtuoso
             className="w-full h-full gap-y-4"
-            data={handledUtterances}
+            data={searchHandledUtterances}
             onScroll={(e) => {
               if (currentSpeaker || currentSpeakerElement) {
                 setCurrentSpeaker(undefined);
@@ -91,10 +102,7 @@ const UtterancesList = () => {
             }}
             itemContent={(index, utterance) => {
               return (
-                <UtteranceItem
-                  key={utterance?.id}
-                  handledUtterance={utterance}
-                />
+                <UtteranceItem key={utterance?.id} utterance={utterance} />
               );
             }}
           />

@@ -46,7 +46,7 @@ const EditItem = ({ edit, onClick, onDelete, active }: EditItemProps) => {
         <div className="flex items-start justify-between">
           <p
             className={cn(
-              "line-clamp-2 mr-4 flex-1 text-base font-medium outline-none pr-4",
+              "line-clamp-2 mr-4 flex-1 text-base font-medium outline-none pr-4 cursor-text",
               jostFont.className
             )}
             contentEditable

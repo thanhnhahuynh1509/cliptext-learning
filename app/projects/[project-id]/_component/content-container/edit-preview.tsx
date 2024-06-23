@@ -52,7 +52,7 @@ const EditPreview = ({ id, start, end }: EditPreviewProps) => {
         <Image
           src={imageSrc}
           alt="Chapter Preview"
-          className="top-0 left-0 w-full aspect-[16/9] rounded-sm"
+          className="top-0 left-0 w-full aspect-[16/9] rounded-sm pointer-events-none"
           fill
         />
       )}

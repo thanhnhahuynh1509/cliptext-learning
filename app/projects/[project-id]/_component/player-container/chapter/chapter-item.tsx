@@ -46,7 +46,7 @@ const ChapterItem = ({ chapter, onClick }: ChapterProps) => {
               e.stopPropagation();
             }}
             className={cn(
-              "line-clamp-2 pr-4 flex-1 outline-none",
+              "line-clamp-2 pr-4 flex-1 outline-none cursor-text",
               jostFont.className
             )}
             spellCheck={false}
@@ -67,7 +67,7 @@ const ChapterItem = ({ chapter, onClick }: ChapterProps) => {
           </p>
           <p
             className={cn(
-              "text-[12px] text-muted-foreground pr-3 ",
+              "text-[12px] text-muted-foreground pr-3",
               jostFont.className
             )}
           >
@@ -78,7 +78,7 @@ const ChapterItem = ({ chapter, onClick }: ChapterProps) => {
 
         <p
           className={cn(
-            "text-muted-foreground w-full pr-4 text-sm outline-none",
+            "text-muted-foreground w-full pr-4 text-sm outline-none cursor-text",
             jostFont.className
           )}
           spellCheck={false}

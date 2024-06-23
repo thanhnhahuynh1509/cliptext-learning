@@ -17,10 +17,11 @@ const jostFont = Jost({
 });
 
 interface UtteranceWordsItemProps {
-  handledUtterance: any;
+  utterance: any;
 }
 
-const UtteranceWordsItem = ({ handledUtterance }: UtteranceWordsItemProps) => {
+const UtteranceWordsItem = ({ utterance }: UtteranceWordsItemProps) => {
+  console.log(utterance);
   const {
     words: transcriptWords,
     utterances,
@@ -121,49 +122,47 @@ const UtteranceWordsItem = ({ handledUtterance }: UtteranceWordsItemProps) => {
   );
 
   const renderedUtterances = useMemo(() => {
-    return handledUtterance?.words?.map((words: Word[], idx: number) => {
-      const startMs = words[0]?.start;
-      return (
-        <div
-          key={idx}
-          className="pl-[150px] flex gap-x-4 w-full"
-          onMouseUp={() => {
-            if (!onTranscriptEditMode) {
-              onMouseUp();
-            }
-          }}
+    const words = utterance?.words;
+    const startMs = words[0]?.start;
+    return (
+      <div
+        className="pl-[150px] flex gap-x-4 w-full"
+        onMouseUp={() => {
+          if (!onTranscriptEditMode) {
+            onMouseUp();
+          }
+        }}
+      >
+        <p
+          className={cn(
+            "text-sm text-muted-foreground w-[48px] select-none leading-7 pointer-events-none",
+            jostFont.className
+          )}
         >
-          <p
-            className={cn(
-              "text-sm text-muted-foreground w-[48px] select-none leading-7 pointer-events-none",
-              jostFont.className
-            )}
-          >
-            {formatDuration(startMs / 1000)}
-          </p>
+          {formatDuration(startMs / 1000)}
+        </p>
 
-          <div className="flex-1 text-wrap pr-8">
-            {words?.map((word: Word) => {
-              return (
-                <WordItem
-                  key={word.id}
-                  word={word}
-                  onClick={onClickWord}
-                  className="word"
-                  isEditable={onTranscriptEditMode}
-                  onBlur={(e, word) => {
-                    onEditWordBlur(handledUtterance.id, e, word);
-                  }}
-                />
-              );
-            })}
-          </div>
+        <div className="flex-1 text-wrap pr-8">
+          {words?.map((word: Word) => {
+            return (
+              <WordItem
+                key={word.id}
+                word={word}
+                onClick={onClickWord}
+                className="word"
+                isEditable={onTranscriptEditMode}
+                onBlur={(e, word) => {
+                  onEditWordBlur(utterance.id, e, word);
+                }}
+              />
+            );
+          })}
         </div>
-      );
-    });
+      </div>
+    );
   }, [
-    handledUtterance.id,
-    handledUtterance?.words,
+    utterance.id,
+    utterance?.words,
     onClickWord,
     onEditWordBlur,
     onMouseUp,
