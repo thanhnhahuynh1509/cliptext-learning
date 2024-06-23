@@ -1,10 +1,16 @@
 import { useTranscript } from "@/stores/transcript-store";
 import { Clapperboard } from "lucide-react";
-import React, { memo, useCallback, useEffect, useState } from "react";
+import React, {
+  RefObject,
+  memo,
+  useCallback,
+  useEffect,
+  useState,
+} from "react";
 
 import EditItem from "./edit-item";
 import { useProjects } from "@/stores/projects-store";
-import { Edit } from "@/types/transcript-types";
+import { Edit, Word } from "@/types/transcript-types";
 import { updateEdit } from "@/api/project";
 import { Virtuoso } from "react-virtuoso";
 import { useGlobalSearch } from "@/stores/global-search-store";
@@ -12,9 +18,10 @@ import { useGlobalSearch } from "@/stores/global-search-store";
 interface EditsProps {
   currentEdit?: Edit;
   setCurrentEdit: (edit?: Edit) => void;
+  mediaEditRef: RefObject<HTMLVideoElement>;
 }
 
-const Edits = ({ currentEdit, setCurrentEdit }: EditsProps) => {
+const Edits = ({ currentEdit, setCurrentEdit, mediaEditRef }: EditsProps) => {
   const { edits, setEdits } = useTranscript();
   const [handledEdits, setHandledEdits] = useState(edits);
   const { currentProject } = useProjects();
@@ -30,6 +37,15 @@ const Edits = ({ currentEdit, setCurrentEdit }: EditsProps) => {
       }
     },
     [currentEdit?.id, currentProject?.id, edits, setCurrentEdit, setEdits]
+  );
+
+  const onClickWord = useCallback(
+    (word: Word) => {
+      if (mediaEditRef && mediaEditRef?.current) {
+        mediaEditRef.current.currentTime = word.start / 1000;
+      }
+    },
+    [mediaEditRef]
   );
 
   useEffect(() => {
@@ -83,6 +99,7 @@ const Edits = ({ currentEdit, setCurrentEdit }: EditsProps) => {
                   onClick={(edit) => {
                     setCurrentEdit(edit);
                   }}
+                  onClickWord={onClickWord}
                   active={active}
                 />
               );

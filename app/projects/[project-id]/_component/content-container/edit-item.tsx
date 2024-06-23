@@ -20,10 +20,17 @@ interface EditItemProps {
   edit: Edit;
   active: boolean;
   onClick?: (edit: Edit) => void;
+  onClickWord?: (word: Word) => void;
   onDelete: (id: string) => void;
 }
 
-const EditItem = ({ edit, onClick, onDelete, active }: EditItemProps) => {
+const EditItem = ({
+  edit,
+  onClick,
+  onClickWord,
+  onDelete,
+  active,
+}: EditItemProps) => {
   const { edits, setEdits } = useTranscript();
   const { currentProject } = useProjects();
 
@@ -83,6 +90,11 @@ const EditItem = ({ edit, onClick, onDelete, active }: EditItemProps) => {
               <WordItem
                 key={word.id}
                 word={word}
+                onClick={(word) => {
+                  if (active && onClickWord) {
+                    onClickWord(word);
+                  }
+                }}
                 className={`text-sm text-muted-foreground edit-word ${edit.id}`}
               />
             );

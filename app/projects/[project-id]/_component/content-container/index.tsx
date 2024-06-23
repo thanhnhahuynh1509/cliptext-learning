@@ -178,7 +178,11 @@ const ContentContainer = ({}: ContentContainerProps) => {
           </div>
 
           <TabsContent value="edits" className="w-full h-full flex-1">
-            <Edits currentEdit={currentEdit} setCurrentEdit={setCurrentEdit} />
+            <Edits
+              currentEdit={currentEdit}
+              setCurrentEdit={setCurrentEdit}
+              mediaEditRef={mediaEditRef}
+            />
           </TabsContent>
         </Tabs>
       </div>
