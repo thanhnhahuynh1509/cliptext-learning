@@ -1,7 +1,7 @@
 import { cn } from "@/lib/utils";
 import { Word } from "@/types/transcript-types";
 import { Jost } from "next/font/google";
-import React, { memo } from "react";
+import React, { memo, useRef } from "react";
 
 const jostFont = Jost({
   subsets: ["latin"],
@@ -17,15 +17,35 @@ interface WordItemProps {
   ) => void;
   isEditable?: boolean;
   className?: string;
+  searchValue?: string;
 }
 
 const WordItem = ({
   word,
   className,
   isEditable,
+  searchValue,
   onClick,
   onBlur,
 }: WordItemProps) => {
+  const spanRef = useRef<HTMLSpanElement>(null);
+  const searchSplit = searchValue
+    ?.split(" ")
+    ?.map((text) => text.toLowerCase());
+  let renderedText = word.text;
+
+  for (const text of searchSplit ?? []) {
+    if (word.text.toLowerCase().includes(text)) {
+      const lowerText = word.text.toLowerCase();
+      const startIndex = lowerText.indexOf(text);
+      const sliceText = word.text.slice(startIndex, startIndex + text.length);
+      renderedText = word.text.replace(
+        sliceText,
+        `<span class="bg-yellow-200">${sliceText}</span>`
+      );
+    }
+  }
+
   return (
     <>
       <span
@@ -51,9 +71,11 @@ const WordItem = ({
             onBlur(e, word);
           }
         }}
-      >
-        {word.text}
-      </span>
+        ref={spanRef}
+        dangerouslySetInnerHTML={{
+          __html: searchValue?.trim() ? renderedText : word.text,
+        }}
+      ></span>
 
       <span
         key={word.text + word.id}

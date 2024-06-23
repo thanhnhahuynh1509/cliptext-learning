@@ -10,6 +10,7 @@ import { useGlobalToggleState } from "@/stores/global-toggle-state-store";
 import { toast } from "sonner";
 import { updateUtterances, updateWords } from "@/api/project";
 import { useProjects } from "@/stores/projects-store";
+import { useGlobalSearch } from "@/stores/global-search-store";
 
 const jostFont = Jost({
   subsets: ["latin"],
@@ -30,6 +31,7 @@ const UtteranceWordsItem = ({ utterance }: UtteranceWordsItemProps) => {
   const { onTranscriptEditMode } = useGlobalToggleState();
   const { mediaRefCurrent } = useMediaPlayerRef();
   const { currentProject } = useProjects();
+  const { searchValue, searchType } = useGlobalSearch();
   const { setSelectionRect, setSelectionMenuVisible, setSelectionWords } =
     useSelection();
 
@@ -153,6 +155,9 @@ const UtteranceWordsItem = ({ utterance }: UtteranceWordsItemProps) => {
                 onBlur={(e, word) => {
                   onEditWordBlur(utterance.id, e, word);
                 }}
+                searchValue={
+                  searchType === "transcript" ? searchValue : undefined
+                }
               />
             );
           })}
@@ -160,12 +165,14 @@ const UtteranceWordsItem = ({ utterance }: UtteranceWordsItemProps) => {
       </div>
     );
   }, [
-    utterance.id,
     utterance?.words,
-    onClickWord,
-    onEditWordBlur,
-    onMouseUp,
+    utterance.id,
     onTranscriptEditMode,
+    onMouseUp,
+    onClickWord,
+    searchType,
+    searchValue,
+    onEditWordBlur,
   ]);
 
   return <>{renderedUtterances}</>;
