@@ -28,11 +28,9 @@ const PlayerContainer = ({
     useState<string>("up");
   const [scrollUtterances, setScrollUtterances] = useState<Utterance[]>([]);
   const virtuoso = useRef<VirtuosoHandle>(null);
-  const scrollContainerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const utterancesDom = document.querySelectorAll(".utterance-item");
-    console.log(scrollContainerRef.current?.getBoundingClientRect());
     if (utterancesDom.length) {
       const firstElement = utterancesDom[0];
       const lastElement = utterancesDom[utterancesDom?.length - 1];
@@ -93,7 +91,7 @@ const PlayerContainer = ({
         </div>
 
         <TabsContent value="transcript" className="w-full h-full flex-1">
-          <div className="w-full h-full relative" ref={scrollContainerRef}>
+          <div className="w-full h-full relative">
             <Transcript
               virtuoso={virtuoso}
               setScrollUtterances={setScrollUtterances}
