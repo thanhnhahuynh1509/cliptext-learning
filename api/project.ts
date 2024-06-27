@@ -90,6 +90,11 @@ export async function save(project: Project) {
   return response.data;
 }
 
+export async function saveYoutube(project: Project) {
+  const response = await axios.post(`${PROJECT_ENDPOINT}/youtube`, project);
+  return response.data;
+}
+
 export async function list(userId: string) {
   const response = await axios.get(`${PROJECT_ENDPOINT}`, {
     headers: {

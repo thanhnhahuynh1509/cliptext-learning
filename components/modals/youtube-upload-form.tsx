@@ -2,23 +2,72 @@
 
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
-import { ArrowBigUp, Link2 } from "lucide-react";
-import React, { ChangeEvent, useEffect } from "react";
+import { Link2, LoaderCircle } from "lucide-react";
+import React, { ChangeEvent, useEffect, useState } from "react";
 import { useDebounceValue } from "usehooks-ts";
 import { Button } from "@/components/ui/button";
 import { useCreateProjectModal } from "@/stores/create-project-modal-store";
+import { getInfo } from "@/server/youtube-download";
+import { v4 as uuid } from "uuid";
+import { useUser } from "@clerk/nextjs";
+import { useRooms } from "@/stores/rooms-store";
+import { useProjects } from "@/stores/projects-store";
+import stream from "stream";
+import { Kind, Project, Status, UploadType } from "@/types/project-types";
+import { saveYoutube } from "@/api/project";
 
 const YoutubeUploadForm = () => {
   const [value, setValue] = useDebounceValue("", 500);
-  const { setOpen } = useCreateProjectModal();
+  const [id] = useState(uuid());
+  const { user } = useUser();
+  const { currentRoom } = useRooms();
+  const { isCreating, setIsCreating, setOpen } = useCreateProjectModal();
+  const { add } = useProjects();
 
   const onChange = (e: ChangeEvent<HTMLInputElement>) => {
     setValue(e.target.value);
   };
 
-  const onClick = () => {
-    toast.success("Start uploading your media...");
-    setOpen(true);
+  const onClick = async () => {
+    try {
+      toast.success("Start uploading your media...");
+      setIsCreating(true);
+      setOpen(true);
+      const youtubeId = getYouTubeId(value);
+      if (!youtubeId) {
+        toast.error("Youtube video url is not valid!");
+        return;
+      }
+      const infoStr = await getInfo(value);
+      const info = JSON.parse(infoStr ?? "");
+      const videoDetails = info.info.videoDetails;
+      const project: Project = {
+        id: id,
+        name: videoDetails.title,
+        uploadType: UploadType.Youtube,
+        kind: Kind.Video,
+        url: value,
+        createdAt: Date.now(),
+        authorId: user!.id,
+        authorName: user!.fullName!,
+        status: Status.Pending,
+        duration: info.info.formats[0].approxDurationMs / 1000,
+        roomId: currentRoom?.id!,
+        thumbnail: info.thumbnail.url,
+      };
+
+      const response = await saveYoutube(project);
+      add(response);
+      setOpen(false);
+      toast.success("Uploading successfully! Your clip is processing...");
+    } catch (e) {
+      toast.error(
+        "Something went wrong! Please try again or contact supports. Thanks"
+      );
+      console.error(e);
+    } finally {
+      setIsCreating(false);
+    }
   };
 
   useEffect(() => {
@@ -53,9 +102,11 @@ const YoutubeUploadForm = () => {
 
           <div className="flex flex-col gap-y-2 items-center w-full">
             <Button onClick={onClick} className="w-full">
-              Upload
+              {isCreating && (
+                <LoaderCircle className="mr-2 w-4 h-4 animate-spin" />
+              )}
+              {isCreating ? "Uploading..." : "Upload"}
             </Button>
-            {/* <ArrowBigUp className="w-5 h-5 animate-bounce" /> */}
           </div>
         </div>
       )}

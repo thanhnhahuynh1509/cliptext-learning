@@ -81,8 +81,8 @@ const LocalUploadForm = () => {
         roomId: currentRoom?.id!,
       };
 
-      await save(project);
-      add(project);
+      const response = await save(project);
+      add(response);
       setOpen(false);
 
       toast.success("Uploading successfully! Your clip is processing...");
@@ -93,6 +93,8 @@ const LocalUploadForm = () => {
       toast.error(
         "Could not save your project! Please try again or contact the supports, thanks."
       );
+    } finally {
+      setIsCreating(false);
     }
   };
 
@@ -100,11 +102,11 @@ const LocalUploadForm = () => {
     toast.error(
       "Oops! We have some troubles while uploading your file, please try again!"
     );
+    setIsCreating(false);
     console.log(err);
   };
 
   const onFinish = () => {
-    setIsCreating(false);
     setProgress(0);
   };
 
