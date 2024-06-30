@@ -107,7 +107,7 @@ const UtteranceWordsItem = ({ utterance }: UtteranceWordsItemProps) => {
             foundedWord.text = content;
             foundedUtteranceWord.text = content;
 
-            setWords(transcriptWords ?? []);
+            setWords([...(transcriptWords ?? [])]);
             setUtterances(utterances ?? []);
             updateWords(currentProject?.id!, transcriptWords ?? []);
             updateUtterances(currentProject?.id!, utterances ?? []);

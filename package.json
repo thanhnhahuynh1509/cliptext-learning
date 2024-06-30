@@ -34,6 +34,7 @@
     "docx": "^8.5.0",
     "file-saver": "^2.0.5",
     "framer-motion": "^11.2.10",
+    "jassub": "^1.7.15",
     "lucide-react": "^0.376.0",
     "next": "14.2.3",
     "next-themes": "^0.3.0",

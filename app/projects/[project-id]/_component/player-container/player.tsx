@@ -1,9 +1,14 @@
+"use client";
+
 /* eslint-disable react-hooks/exhaustive-deps */
 import React, { useEffect, useMemo, useRef } from "react";
 import { motion } from "framer-motion";
 import { useMediaPlayerRef } from "@/stores/media-player-ref-store";
 import { useProjects } from "@/stores/projects-store";
 import { Kind } from "@/types/project-types";
+import { useTranscript } from "@/stores/transcript-store";
+import JASSUB from "jassub";
+import { generateASS } from "@/lib/caption";
 
 interface PlayerProps {
   onExpand: boolean;
@@ -14,6 +19,7 @@ interface PlayerProps {
 const Player = ({ onExpand, currentTime, setCurrentTime }: PlayerProps) => {
   const mediaRef = useRef<HTMLVideoElement>(null);
   const { currentProject } = useProjects();
+  const { words } = useTranscript();
   const { objectUrl, setMediaRefCurrent } = useMediaPlayerRef();
 
   const trackingNoRenderState = useMemo<{
@@ -28,6 +34,36 @@ const Player = ({ onExpand, currentTime, setCurrentTime }: PlayerProps) => {
       mediaRef.current?.load();
     }
   }, [objectUrl]);
+
+  useEffect(() => {
+    const mediaElement = mediaRef.current;
+    if (!mediaElement) {
+      return;
+    }
+
+    const renderer = new JASSUB({
+      video: mediaElement,
+      subContent: generateASS(words ?? []),
+      workerUrl: new URL(
+        "jassub/dist/jassub-worker.js",
+        import.meta.url
+      ).toJSON(),
+      wasmUrl: new URL(
+        "jassub/dist/jassub-worker.wasm",
+        import.meta.url
+      ).toJSON(),
+      fonts: ["/Jost-Regular.ttf", "/PlayRight.ttf"],
+      availableFonts: {
+        "liberation sans": "/default.woff2",
+      },
+      fallbackFont: "liberation sans",
+      useLocalFonts: true,
+    });
+
+    return () => {
+      renderer.destroy();
+    };
+  }, [words]);
 
   useEffect(() => {
     const words = document.querySelectorAll(".word");
@@ -71,7 +107,8 @@ const Player = ({ onExpand, currentTime, setCurrentTime }: PlayerProps) => {
         animate={{
           height: `${!onExpand && currentProject?.kind === Kind.Video ? "250px" : "auto"}`,
         }}
-        className={`flex items-start gap-x-4 w-full`}
+        id="container"
+        className={`w-full`}
       >
         {currentProject?.kind === Kind.Video && (
           <video

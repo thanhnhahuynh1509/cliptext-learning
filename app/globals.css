@@ -130,4 +130,6 @@ html,
 ::-webkit-scrollbar-thumb:hover {
   background: #ccc;
   cursor: pointer;
+  padding: 5px;
+  border-radius: 10px;
 }

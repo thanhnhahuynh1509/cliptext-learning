@@ -1,7 +1,7 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { CircleX, Clapperboard, LoaderCircle } from "lucide-react";
+import { Clapperboard, LoaderCircle } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Input } from "../ui/input";
 import { cancelUpload, save, upload } from "@/api/project";
