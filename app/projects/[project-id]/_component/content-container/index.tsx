@@ -2,6 +2,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import SearchInput from "@/components/search-input";
 import { Pointer } from "lucide-react";
 import Edits from "./edits";
+import Chapters from "../player-container/chapter";
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useMediaPlayerRef } from "@/stores/media-player-ref-store";
 import { Edit } from "@/types/transcript-types";
@@ -25,6 +26,7 @@ const ContentContainer = ({}: ContentContainerProps) => {
   const [currentEdit, setCurrentEdit] = useState<Edit | undefined>();
   const [debounceValue, setDebounceValue] = useDebounceValue("", 200);
   const { setSearchType, setSearchValue } = useGlobalSearch();
+  const [currentTab, setCurrentTab] = useState<string>("edits");
 
   const trackingNoRenderState = useMemo<{
     frameCallbackId: any;
@@ -120,69 +122,89 @@ const ContentContainer = ({}: ContentContainerProps) => {
   return (
     <div className="flex flex-col gap-y-4 w-[40%] h-full pl-3 py-6 bg-white">
       <div className="flex flex-col gap-y-4 overflow-hidden w-full h-full">
-        <motion.div className="w-full px-3 edit-video-container">
-          {currentEdit && currentProject?.kind === Kind.Video && (
-            <>
-              <video
-                id="edit-player"
-                controls
-                className={`w-full aspect-[16/9] rounded-sm ${!currentEdit && "hidden"}`}
-                ref={mediaEditRef}
-                onPlay={onPlay}
-                onPause={onPause}
-              />
-            </>
-          )}
-          {currentEdit && currentProject?.kind === Kind.Audio && (
-            <>
-              <audio
-                id="edit-player"
-                controls
-                className={`w-full rounded-sm ${!currentEdit && "hidden"}`}
-                ref={mediaEditRef}
-                onPlay={onPlay}
-                onPause={onPause}
-              />
-            </>
-          )}
-
-          {!currentEdit && (
-            <div className="w-full aspect-[16/9] bg-gray-800 rounded-sm relative">
-              <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 flex flex-col items-center">
-                <Pointer className="mt-6 w-8 h-8 text-white" />
-
-                <p className="font-normal text-sm text-white mt-6">
-                  Try to select an edit!
-                </p>
-              </div>
-            </div>
-          )}
-        </motion.div>
-
         <Tabs
           defaultValue="edits"
           className="w-full h-full px-3 flex flex-col items-start"
         >
           <div className="flex items-center justify-between py-2 w-full">
             <TabsList>
-              <TabsTrigger value="edits">Edits</TabsTrigger>
+              <TabsTrigger
+                value="edits"
+                onClick={() => {
+                  setCurrentTab("edits");
+                }}
+              >
+                Edits
+              </TabsTrigger>
+              <TabsTrigger
+                value="chapters"
+                onClick={() => {
+                  setCurrentTab("chapters");
+                }}
+              >
+                Summary
+              </TabsTrigger>
             </TabsList>
 
             <div className="flex items-center gap-x-4 mr-2">
-              <SearchInput
+              {/* <SearchInput
                 placeholder="title, content..."
                 onChange={(e) => setDebounceValue(e.target.value)}
-              />
-              <ExportButton />
+              /> */}
+              <ExportButton currentTab={currentTab} />
             </div>
           </div>
 
           <TabsContent value="edits" className="w-full h-full flex-1">
-            <Edits
-              currentEdit={currentEdit}
-              setCurrentEdit={setCurrentEdit}
-              mediaEditRef={mediaEditRef}
-            />
+            <div className="flex flex-col gap-y-4 overflow-hidden w-full h-full">
+              <motion.div className="w-full px-3 edit-video-container">
+                {currentEdit && currentProject?.kind === Kind.Video && (
+                  <>
+                    <video
+                      id="edit-player"
+                      controls
+                      className={`w-full aspect-[16/9] rounded-sm ${!currentEdit && "hidden"}`}
+                      ref={mediaEditRef}
+                      onPlay={onPlay}
+                      onPause={onPause}
+                    />
+                  </>
+                )}
+                {currentEdit && currentProject?.kind === Kind.Audio && (
+                  <>
+                    <audio
+                      id="edit-player"
+                      controls
+                      className={`w-full rounded-sm ${!currentEdit && "hidden"}`}
+                      ref={mediaEditRef}
+                      onPlay={onPlay}
+                      onPause={onPause}
+                    />
+                  </>
+                )}
+
+                {!currentEdit && (
+                  <div className="w-full aspect-[16/9] bg-gray-800 rounded-sm relative">
+                    <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 flex flex-col items-center">
+                      <Pointer className="mt-6 w-8 h-8 text-white" />
+
+                      <p className="font-normal text-sm text-white mt-6">
+                        Try to select an edit!
+                      </p>
+                    </div>
+                  </div>
+                )}
+              </motion.div>
+              <Edits
+                currentEdit={currentEdit}
+                setCurrentEdit={setCurrentEdit}
+                mediaEditRef={mediaEditRef}
+              />
+            </div>
+          </TabsContent>
+
+          <TabsContent value="chapters" className="w-full h-full flex-1">
+            <Chapters />
           </TabsContent>
         </Tabs>
       </div>

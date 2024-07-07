@@ -1,7 +1,6 @@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import Transcript from "./transcript";
 import Player from "./player";
-import Chapters from "./chapter";
 import { memo, useEffect, useRef, useState } from "react";
 import TranscriptMenu from "./transcript-menu";
 
@@ -77,14 +76,6 @@ const PlayerContainer = ({
             >
               Transcript
             </TabsTrigger>
-            <TabsTrigger
-              value="chapters"
-              onClick={() => {
-                setCurrentTab("chapters");
-              }}
-            >
-              Summary
-            </TabsTrigger>
           </TabsList>
 
           <TranscriptActionBar currentTab={currentTab} />
@@ -130,10 +121,6 @@ const PlayerContainer = ({
               </Button>
             )}
           </div>
-        </TabsContent>
-
-        <TabsContent value="chapters" className="w-full h-full flex-1">
-          <Chapters />
         </TabsContent>
       </Tabs>
 
