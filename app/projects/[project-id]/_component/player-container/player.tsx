@@ -43,7 +43,7 @@ const Player = ({ onExpand, currentTime, setCurrentTime }: PlayerProps) => {
 
     const renderer = new JASSUB({
       video: mediaElement,
-      subContent: generateASS(words ?? []),
+      subContent: generateASS(words ?? [], "jost"),
       workerUrl: new URL(
         "jassub/dist/jassub-worker.js",
         import.meta.url
@@ -52,9 +52,9 @@ const Player = ({ onExpand, currentTime, setCurrentTime }: PlayerProps) => {
         "jassub/dist/jassub-worker.wasm",
         import.meta.url
       ).toJSON(),
-      fonts: ["/Jost-Regular.ttf", "/PlayRight.ttf"],
       availableFonts: {
-        "liberation sans": "/default.woff2",
+        jost: "/fonts/Jost-Regular.ttf",
+        "liberation sans": "/fonts/default.woff2",
       },
       fallbackFont: "liberation sans",
       useLocalFonts: true,
