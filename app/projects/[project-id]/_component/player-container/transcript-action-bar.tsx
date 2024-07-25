@@ -10,7 +10,7 @@ import { useGlobalToggleState } from "@/stores/global-toggle-state-store";
 import { useProjects } from "@/stores/projects-store";
 import { useTranscript } from "@/stores/transcript-store";
 import { Kind } from "@/types/project-types";
-import { FileDown, MoveUp, Pencil } from "lucide-react";
+import { Captions, CaptionsOff, FileDown, MoveUp, Pencil } from "lucide-react";
 import React, { useEffect } from "react";
 import { useDebounceValue } from "usehooks-ts";
 
@@ -26,6 +26,8 @@ const TranscriptActionBar = ({ currentTab }: TranscriptActionBarProps) => {
     onTranscriptEditMode: onEditMode,
     setOnTranscriptEditMode: setOnEditMode,
     onExpand,
+    onCC,
+    setOnCC,
     setOnExpand,
   } = useGlobalToggleState();
   const [debounceValue, setDebounceValue] = useDebounceValue("", 200);
@@ -45,7 +47,7 @@ const TranscriptActionBar = ({ currentTab }: TranscriptActionBarProps) => {
   };
 
   return (
-    <div className="flex items-center gap-x-4">
+    <div className="flex items-center gap-x-2">
       {currentProject?.kind === Kind.Video && (
         <Hint label={`${onExpand ? "Shrink" : "Expand"}`}>
           <Button
@@ -62,6 +64,20 @@ const TranscriptActionBar = ({ currentTab }: TranscriptActionBarProps) => {
           </Button>
         </Hint>
       )}
+
+      <Hint label="CC">
+        <Button
+          size={"icon"}
+          variant={onCC ? "default" : "outline"}
+          onClick={(e) => {
+            e.stopPropagation();
+            setOnCC(!onCC);
+          }}
+        >
+          {onCC && <Captions className={`w-4 h-4`} />}
+          {!onCC && <CaptionsOff className={`w-4 h-4`} />}
+        </Button>
+      </Hint>
 
       <Hint label={`Edit mode`}>
         <Button

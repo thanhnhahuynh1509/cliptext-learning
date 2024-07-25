@@ -1,3 +1,12 @@
+import {
+  CaptionStyle,
+  DEFAULT_CURRENT_COLOR,
+  DEFAULT_FONT_SIZE,
+  DEFAULT_FUTURE_COLOR,
+  DEFAULT_MAX_CHARACTERS_ON_SCREEN,
+  DEFAULT_OUTLINE_COLOR,
+  DEFAULT_PAST_COLOR,
+} from "@/types/caption-style-type";
 import { Word } from "@/types/transcript-types";
 
 function formatTime(seconds: number) {
@@ -8,20 +17,26 @@ function formatTime(seconds: number) {
   return `${hours}:${minutes.toString().padStart(2, "0")}:${secs.toString().padStart(2, "0")}.${cs.toString().padStart(2, "0")}`;
 }
 
-export function generateASS(words: Word[], font: string) {
+export function generateASS(
+  words: Word[],
+  font: string,
+  caption?: CaptionStyle
+) {
   words = JSON.parse(JSON.stringify(words));
-  const textPastColor = "FFFFFF";
-  const textFutureColor = "707070";
-  const textCurrentColor = "FFFFFF";
-  const outlineColor = "000000";
-  const fontSize = 70;
+  const textPastColor = caption?.pastColor ?? DEFAULT_PAST_COLOR;
+  const textFutureColor = caption?.futureColor ?? DEFAULT_FUTURE_COLOR;
+  const textCurrentColor = caption?.currentColor ?? DEFAULT_CURRENT_COLOR;
+  const outlineColor = caption?.outlineColor ?? DEFAULT_OUTLINE_COLOR;
+  const fontSize = caption?.fontSize ?? DEFAULT_FONT_SIZE;
+  const maxCharactersOnScreen =
+    caption?.maxCharactersOnScreen ?? DEFAULT_MAX_CHARACTERS_ON_SCREEN;
   const groupWords = [];
   let tempWords: Word[] = [];
   let text = "";
   let lastWord: any = null;
 
   for (const word of words) {
-    if (text?.length >= 20) {
+    if (text?.length >= maxCharactersOnScreen) {
       groupWords.push(tempWords);
       tempWords = [];
       text = "";

@@ -1,3 +1,5 @@
+import { SERVER_ENDPOINT } from "@/config/server-config";
+import { Font } from "@/types/font-type";
 import { type ClassValue, clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
 
@@ -101,3 +103,21 @@ export const captureFrame = async (
     };
   });
 };
+
+export function loadFont(fontStyle: string) {
+  const newStyle = document.createElement("style");
+  newStyle.appendChild(document.createTextNode(fontStyle));
+  document.body.appendChild(newStyle);
+}
+
+export function addFontToDom(fonts: Font[]) {
+  for (const font of fonts) {
+    const fontFamily = `
+          @font-face {
+            font-family: '${font.fontFamily}';
+            src: url('${SERVER_ENDPOINT + "/" + font.url}');
+          }
+        `;
+    loadFont(fontFamily);
+  }
+}

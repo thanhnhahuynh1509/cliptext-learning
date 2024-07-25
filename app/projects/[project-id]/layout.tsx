@@ -1,7 +1,7 @@
 import { getById } from "@/api/project";
-import Aside from "@/app/(dashboard)/_components/aside";
-import { Metadata, ResolvingMetadata } from "next";
+import { Metadata } from "next";
 import React from "react";
+import AsideProject from "./_component/aside-project";
 
 interface ProjectLayoutProps {
   children: React.ReactNode;
@@ -24,7 +24,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 const ProjectLayout = ({ children }: ProjectLayoutProps) => {
   return (
     <main className="w-full h-full bg-white overflow-hidden">
-      <Aside />
+      <AsideProject />
 
       <div className="ml-14 h-full flex flex-col">
         <div className="flex-1">

@@ -15,6 +15,7 @@ import { useProjects } from "@/stores/projects-store";
 import stream from "stream";
 import { Kind, Project, Status, UploadType } from "@/types/project-types";
 import { saveYoutube } from "@/api/project";
+import { useCaptionStyles } from "@/stores/caption-style-store";
 
 const YoutubeUploadForm = () => {
   const [value, setValue] = useDebounceValue("", 500);
@@ -23,6 +24,7 @@ const YoutubeUploadForm = () => {
   const { currentRoom } = useRooms();
   const { isCreating, setIsCreating, setOpen } = useCreateProjectModal();
   const { add } = useProjects();
+  const { captionStyles, getDefaultCaption } = useCaptionStyles();
 
   const onChange = (e: ChangeEvent<HTMLInputElement>) => {
     setValue(e.target.value);
@@ -54,6 +56,7 @@ const YoutubeUploadForm = () => {
         duration: info.info.formats[0].approxDurationMs / 1000,
         roomId: currentRoom?.id!,
         thumbnail: info.thumbnail.url,
+        captionId: getDefaultCaption(captionStyles)?.id,
       };
 
       const response = await saveYoutube(project);

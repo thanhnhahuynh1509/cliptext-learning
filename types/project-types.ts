@@ -27,4 +27,5 @@ export interface Project {
   thumbnail?: string;
   duration: number;
   roomId: string;
+  captionId?: number;
 }
