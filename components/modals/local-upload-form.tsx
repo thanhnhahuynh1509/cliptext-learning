@@ -14,6 +14,12 @@ import { useUser } from "@clerk/nextjs";
 
 import { useProjects } from "@/stores/projects-store";
 import { useRooms } from "@/stores/rooms-store";
+import { useCaptionStyles } from "@/stores/caption-style-store";
+import {
+  CaptionStyle,
+  DEFAULT_CURRENT_COLOR,
+  DEFAULT_FONT_SIZE,
+} from "@/types/caption-style-type";
 
 const LocalUploadForm = () => {
   const [id] = useState(uuid());
@@ -25,6 +31,7 @@ const LocalUploadForm = () => {
   const { isCreating, uploadType, setIsCreating, setOpen, setUploadType } =
     useCreateProjectModal();
   const { add } = useProjects();
+  const { captionStyles, getDefaultCaption } = useCaptionStyles();
 
   const videoRef = useRef<HTMLVideoElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -79,6 +86,7 @@ const LocalUploadForm = () => {
         status: Status.Pending,
         duration: videoRef?.current?.duration!,
         roomId: currentRoom?.id!,
+        captionId: getDefaultCaption(captionStyles)?.id,
       };
 
       const response = await save(project);

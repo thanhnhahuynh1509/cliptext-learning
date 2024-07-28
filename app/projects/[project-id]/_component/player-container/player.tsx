@@ -9,6 +9,10 @@ import { Kind } from "@/types/project-types";
 import { useTranscript } from "@/stores/transcript-store";
 import JASSUB from "jassub";
 import { generateASS } from "@/lib/caption";
+import { useGlobalToggleState } from "@/stores/global-toggle-state-store";
+import { useCaptionStyles } from "@/stores/caption-style-store";
+import { useFontServer } from "@/stores/font-server-store";
+import { SERVER_ENDPOINT } from "@/config/server-config";
 
 interface PlayerProps {
   onExpand: boolean;
@@ -21,6 +25,9 @@ const Player = ({ onExpand, currentTime, setCurrentTime }: PlayerProps) => {
   const { currentProject } = useProjects();
   const { words } = useTranscript();
   const { objectUrl, setMediaRefCurrent } = useMediaPlayerRef();
+  const { onCC } = useGlobalToggleState();
+  const { activeCaptionStyle } = useCaptionStyles();
+  const { fonts, getActiveFontByCaption } = useFontServer();
 
   const trackingNoRenderState = useMemo<{
     frameCallbackId: any | undefined;
@@ -36,14 +43,30 @@ const Player = ({ onExpand, currentTime, setCurrentTime }: PlayerProps) => {
   }, [objectUrl]);
 
   useEffect(() => {
+    console.log("change", activeCaptionStyle);
+
     const mediaElement = mediaRef.current;
     if (!mediaElement) {
       return;
     }
+    const activeFont = getActiveFontByCaption(fonts, activeCaptionStyle);
+
+    const availableFonts = {
+      "liberation sans": "/fonts/default.woff2",
+    } as any;
+
+    for (const font of fonts ?? []) {
+      availableFonts[font.fontFamily.toLowerCase()] =
+        SERVER_ENDPOINT + "/" + font.url;
+    }
 
     const renderer = new JASSUB({
       video: mediaElement,
-      subContent: generateASS(words ?? [], "jost"),
+      subContent: generateASS(
+        words ?? [],
+        activeFont?.fontFamily ?? "liberation sans",
+        activeCaptionStyle
+      ),
       workerUrl: new URL(
         "jassub/dist/jassub-worker.js",
         import.meta.url
@@ -52,10 +75,7 @@ const Player = ({ onExpand, currentTime, setCurrentTime }: PlayerProps) => {
         "jassub/dist/jassub-worker.wasm",
         import.meta.url
       ).toJSON(),
-      availableFonts: {
-        jost: "/fonts/Jost-Regular.ttf",
-        "liberation sans": "/fonts/default.woff2",
-      },
+      availableFonts: availableFonts,
       fallbackFont: "liberation sans",
       useLocalFonts: true,
     });
@@ -63,7 +83,12 @@ const Player = ({ onExpand, currentTime, setCurrentTime }: PlayerProps) => {
     return () => {
       renderer.destroy();
     };
-  }, [words]);
+  }, [
+    words,
+    activeCaptionStyle?.fontSize,
+    activeCaptionStyle?.maxCharactersOnScreen,
+    activeCaptionStyle?.fontId,
+  ]);
 
   useEffect(() => {
     const words = document.querySelectorAll(".word");
@@ -94,6 +119,14 @@ const Player = ({ onExpand, currentTime, setCurrentTime }: PlayerProps) => {
       setMediaRefCurrent(mediaRef.current);
     }
   }, [setCurrentTime, setMediaRefCurrent]);
+
+  useEffect(() => {
+    if (!onCC) {
+      document.querySelector(".JASSUB")?.classList.add("hidden");
+    } else {
+      document.querySelector(".JASSUB")?.classList.remove("hidden");
+    }
+  }, [onCC]);
 
   useEffect(() => {
     return () => {

@@ -11,8 +11,17 @@ import { useProjects } from "@/stores/projects-store";
 import { useTranscript } from "@/stores/transcript-store";
 import { useMediaPlayerRender } from "@/stores/media-player-render-store";
 import { useMediaPlayerRef } from "@/stores/media-player-ref-store";
-import { captureFrame } from "@/lib/utils";
+import { addFontToDom, captureFrame, loadFont } from "@/lib/utils";
 import { Kind } from "@/types/project-types";
+import { listSystemFont } from "@/api/font";
+import {
+  createCaptionStyle,
+  listCaptionStyleByUserId,
+} from "@/api/caption-style";
+import { useUser } from "@clerk/nextjs";
+import { useFontServer } from "@/stores/font-server-store";
+import { useCaptionStyles } from "@/stores/caption-style-store";
+import { createDefaultCaption } from "@/types/caption-style-type";
 
 interface ProjectPageProps {
   params: {
@@ -23,6 +32,9 @@ interface ProjectPageProps {
 const ProjectPage = ({ params }: ProjectPageProps) => {
   const projectId = params["project-id"];
   const { currentProject, setCurrentProject } = useProjects();
+  const { setFonts } = useFontServer();
+  const { setCaptionStyles, setActiveCaption } = useCaptionStyles();
+  const { user } = useUser();
   const {
     setWords,
     setSpeakerMap,
@@ -43,6 +55,22 @@ const ProjectPage = ({ params }: ProjectPageProps) => {
         setOnLoading(true);
         const response = await getById(projectId);
         const data = await getDataById(projectId);
+        const fonts = await listSystemFont();
+        const captionStyles = await listCaptionStyleByUserId(user?.id ?? "0");
+
+        if (!captionStyles?.length) {
+          const caption = createDefaultCaption(
+            fonts?.find((font) => font.id)?.id ?? 1,
+            user!.id,
+            user!.fullName!
+          );
+          const captionResponse = await createCaptionStyle(caption);
+          captionStyles.push(captionResponse);
+        }
+        addFontToDom(fonts);
+        setFonts(fonts);
+        setCaptionStyles(captionStyles);
+        setActiveCaption(response?.captionId, captionStyles);
 
         setCurrentProject(response);
         setWords(data.words);
@@ -91,17 +119,15 @@ const ProjectPage = ({ params }: ProjectPageProps) => {
       }
     };
 
-    init();
-  }, [
-    projectId,
-    setChapters,
-    setCurrentProject,
-    setEdits,
-    setObjectUrl,
-    setSpeakerMap,
-    setUtterances,
-    setWords,
-  ]);
+    const timeoutId = setTimeout(() => {
+      init();
+    }, 500);
+
+    return () => {
+      clearTimeout(timeoutId);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   useEffect(() => {
     return () => {

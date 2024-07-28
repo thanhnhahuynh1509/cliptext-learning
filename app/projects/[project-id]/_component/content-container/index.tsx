@@ -1,5 +1,4 @@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import SearchInput from "@/components/search-input";
 import { Pointer } from "lucide-react";
 import Edits from "./edits";
 import Chapters from "../player-container/chapter";
@@ -147,10 +146,6 @@ const ContentContainer = ({}: ContentContainerProps) => {
             </TabsList>
 
             <div className="flex items-center gap-x-4 mr-2">
-              {/* <SearchInput
-                placeholder="title, content..."
-                onChange={(e) => setDebounceValue(e.target.value)}
-              /> */}
               <ExportButton currentTab={currentTab} />
             </div>
           </div>
