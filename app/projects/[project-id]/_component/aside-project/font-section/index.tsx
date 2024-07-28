@@ -7,54 +7,34 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { SERVER_ENDPOINT } from "@/config/server-config";
 import { useCaptionStyles } from "@/stores/caption-style-store";
 import { useFontServer } from "@/stores/font-server-store";
 import { CaptionStyle } from "@/types/caption-style-type";
 import { ArrowUpFromLine } from "lucide-react";
 import React from "react";
 import { DebouncedState } from "usehooks-ts";
+import {
+  handleChangeFontSize,
+  handleChangeMaxCharactersOnScreen,
+  handleKeyDownFontSize,
+  handleKeyDownMaxCharactersOnScreen,
+  handleOnFontValueChange,
+} from "./font-section-handler";
 
 interface FontSectionProps {
   onUpdateCaption: DebouncedState<
     (id: number, caption: CaptionStyle) => Promise<void>
   >;
+  caption?: CaptionStyle;
 }
 
-const FontSection = ({ onUpdateCaption }: FontSectionProps) => {
+const FontSection = ({ onUpdateCaption, caption }: FontSectionProps) => {
   const { fonts, getActiveFontByCaption } = useFontServer();
-  const { activeCaptionStyle, updateActiveCaption } = useCaptionStyles();
-  const activeFont = getActiveFontByCaption(fonts, activeCaptionStyle);
+  const { updateActiveCaption } = useCaptionStyles();
+  const activeFont = getActiveFontByCaption(fonts, caption);
 
-  const handleChangeFonSize = (event: any, caption?: CaptionStyle) => {
+  const afterSetValueCallback = (caption: CaptionStyle | undefined) => {
     if (!caption) return;
-    if (!event.currentTarget.value) {
-      event.currentTarget.value = `${caption.fontSize}`;
-      return;
-    }
-    const value = Math.max(parseInt(event.currentTarget.value), 10);
-    if (caption.fontSize == value) return;
-
-    caption.fontSize = value;
-    event.currentTarget.value = value;
-    updateActiveCaption(caption);
-    onUpdateCaption(caption.id, caption);
-  };
-
-  const handleChangeMaxCharactersOnScreen = (
-    event: any,
-    caption?: CaptionStyle
-  ) => {
-    if (!caption) return;
-    if (!event.currentTarget.value) {
-      event.currentTarget.value = `${caption.maxCharactersOnScreen}`;
-      return;
-    }
-    const value = Math.max(parseInt(event.currentTarget.value), 10);
-    if (caption.maxCharactersOnScreen == value) return;
-
-    caption.maxCharactersOnScreen = value;
-    event.currentTarget.value = value;
     updateActiveCaption(caption);
     onUpdateCaption(caption.id, caption);
   };
@@ -66,14 +46,8 @@ const FontSection = ({ onUpdateCaption }: FontSectionProps) => {
           <h4 className="font-bold text-base">Font family</h4>
           <Select
             defaultValue={`${activeFont?.id}`}
-            onValueChange={(value) => {
-              if (!activeCaptionStyle) return;
-              const intValue = parseInt(value);
-              if (activeCaptionStyle.fontId == intValue) return;
-
-              activeCaptionStyle.fontId = intValue;
-              updateActiveCaption(activeCaptionStyle);
-              onUpdateCaption(activeCaptionStyle.id, activeCaptionStyle);
+            onValueChange={(value: string) => {
+              handleOnFontValueChange(caption, value, afterSetValueCallback);
             }}
           >
             <SelectTrigger
@@ -113,16 +87,12 @@ const FontSection = ({ onUpdateCaption }: FontSectionProps) => {
           type="number"
           placeholder="Enter your font size"
           min={10}
-          defaultValue={activeCaptionStyle?.fontSize ?? 70}
-          onKeyDown={(e) => {
-            if (e.key == "Enter") {
-              e.preventDefault();
-              handleChangeFonSize(e, activeCaptionStyle);
-              return;
-            }
+          defaultValue={caption?.fontSize ?? 70}
+          onKeyDown={(event) => {
+            handleKeyDownFontSize(event, caption, afterSetValueCallback);
           }}
           onBlur={(event) => {
-            handleChangeFonSize(event, activeCaptionStyle);
+            handleChangeFontSize(event, caption, afterSetValueCallback);
           }}
         />
       </div>
@@ -133,16 +103,20 @@ const FontSection = ({ onUpdateCaption }: FontSectionProps) => {
           type="number"
           placeholder="Enter number of characters"
           min={10}
-          defaultValue={activeCaptionStyle?.maxCharactersOnScreen ?? 20}
-          onKeyDown={(e) => {
-            if (e.key == "Enter") {
-              e.preventDefault();
-              handleChangeMaxCharactersOnScreen(e, activeCaptionStyle);
-              return;
-            }
+          defaultValue={caption?.maxCharactersOnScreen ?? 20}
+          onKeyDown={(event) => {
+            handleKeyDownMaxCharactersOnScreen(
+              event,
+              caption,
+              afterSetValueCallback
+            );
           }}
           onBlur={(event) => {
-            handleChangeMaxCharactersOnScreen(event, activeCaptionStyle);
+            handleChangeMaxCharactersOnScreen(
+              event,
+              caption,
+              afterSetValueCallback
+            );
           }}
         />
       </div>

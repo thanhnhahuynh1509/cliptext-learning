@@ -121,7 +121,7 @@ const ProjectPage = ({ params }: ProjectPageProps) => {
 
     const timeoutId = setTimeout(() => {
       init();
-    }, 1000);
+    }, 500);
 
     return () => {
       clearTimeout(timeoutId);

@@ -8,6 +8,7 @@ import {
   DEFAULT_PAST_COLOR,
 } from "@/types/caption-style-type";
 import { Word } from "@/types/transcript-types";
+import { toBGR } from "./utils";
 
 function formatTime(seconds: number) {
   const hours = Math.floor(seconds / 3600);
@@ -23,10 +24,12 @@ export function generateASS(
   caption?: CaptionStyle
 ) {
   words = JSON.parse(JSON.stringify(words));
-  const textPastColor = caption?.pastColor ?? DEFAULT_PAST_COLOR;
-  const textFutureColor = caption?.futureColor ?? DEFAULT_FUTURE_COLOR;
-  const textCurrentColor = caption?.currentColor ?? DEFAULT_CURRENT_COLOR;
-  const outlineColor = caption?.outlineColor ?? DEFAULT_OUTLINE_COLOR;
+  const textPastColor = toBGR(caption?.pastColor ?? DEFAULT_PAST_COLOR);
+  const textFutureColor = toBGR(caption?.futureColor ?? DEFAULT_FUTURE_COLOR);
+  const textCurrentColor = toBGR(
+    caption?.currentColor ?? DEFAULT_CURRENT_COLOR
+  );
+  const outlineColor = toBGR(caption?.outlineColor ?? DEFAULT_OUTLINE_COLOR);
   const fontSize = caption?.fontSize ?? DEFAULT_FONT_SIZE;
   const maxCharactersOnScreen =
     caption?.maxCharactersOnScreen ?? DEFAULT_MAX_CHARACTERS_ON_SCREEN;
@@ -71,13 +74,14 @@ export function generateASS(
           if (index === i) {
             return `{\\1c&H${textCurrentColor}&}${item.text}{\\1c&H${textFutureColor}&}`;
           }
-          return item.text;
+          return `${item.text}`;
         })
         .join(" ");
+
       const startTime = formatTime(word.start / 1000);
       const endTime = formatTime(word.end / 1000);
       eventsStr.push(
-        `Dialogue: 0,${startTime},${endTime},Default,,0,0,0,,${text}`
+        `Dialogue: 0,${startTime},${endTime},Default,,0,0,0,,{\\1c&H${textPastColor}&}${text}`
       );
     }
   }
@@ -94,10 +98,26 @@ ScriptType: v4.00+
 
 [V4+ Styles]
 Format: Name, Fontname, Fontsize, PrimaryColour, SecondaryColour, OutlineColour, BackColour, Bold, Italic, Underline, StrikeOut, ScaleX, ScaleY, Spacing, Angle, BorderStyle, Outline, Shadow, Alignment, MarginL, MarginR, MarginV, Encoding
-Style: Default,${font},${fontSize},&H00${textPastColor},&H00${"000000"},&H0${outlineColor},&H0000000,1,0,0,0,100.0,100.0,0.0,0.0,1,6,0,2,10,10,150,1
+Style: Default,${font},${fontSize},&H00${"000000"},&H00${"000000"},&H0${outlineColor},&H0000000,1,0,0,0,100.0,100.0,0.0,0.0,1,6,0,2,10,10,150,1
 
     [Events]
     Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text`;
 
   return `${header}\n${eventsStr.join("\n")}`;
+}
+
+export function replaceColors(
+  text: string,
+  textPastColor: string,
+  currentColor: string,
+  futureColor: string
+) {
+  const regex = /\{[^}]+\}/g;
+  let matchCount = 0;
+  return text.replace(regex, (match) => {
+    if (matchCount < [textPastColor, currentColor, futureColor].length) {
+      return `{\\1c&H${[textPastColor, currentColor, futureColor][matchCount++]}&}`;
+    }
+    return match;
+  });
 }

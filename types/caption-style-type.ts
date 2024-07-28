@@ -19,6 +19,7 @@ export const DEFAULT_CURRENT_COLOR = "FFFFFF";
 export const DEFAULT_FUTURE_COLOR = "707070";
 export const DEFAULT_OUTLINE_COLOR = "000000";
 export const DEFAULT_FONT_SIZE = 70;
+export const DEFAULT_FONT_NAME = "liberation sans";
 export const DEFAULT_MAX_CHARACTERS_ON_SCREEN = 20;
 
 export function createDefaultCaption(

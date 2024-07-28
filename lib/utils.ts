@@ -121,3 +121,15 @@ export function addFontToDom(fonts: Font[]) {
     loadFont(fontFamily);
   }
 }
+
+export function toBGR(hex: string) {
+  if (hex.length !== 6) {
+    throw new Error("Invalid color format");
+  }
+
+  let r = hex.slice(0, 2);
+  let g = hex.slice(2, 4);
+  let b = hex.slice(4, 6);
+
+  return b + g + r;
+}

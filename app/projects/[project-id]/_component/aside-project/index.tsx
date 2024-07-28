@@ -1,25 +1,9 @@
 "use client";
 
 import Hint from "@/components/hint";
-import { Button } from "@/components/ui/button";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-
 import { Separator } from "@/components/ui/separator";
-import {
-  Sheet,
-  SheetContent,
-  SheetHeader,
-  SheetTitle,
-} from "@/components/ui/sheet";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { UserButton } from "@clerk/nextjs";
-import { Bell, Check, Film, FolderCog, Settings, X } from "lucide-react";
+import { Bell, Film, FolderCog, Settings } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import React, { useState } from "react";
@@ -68,12 +52,12 @@ const AsideProject = () => {
             <FolderCog className="w-4 h-4" />
           </button>
         </Hint>
-        <Separator />
-        <Hint label="B-ROLL" side="right" sideOffset={6}>
+        {/* <Separator /> */}
+        {/* <Hint label="B-ROLL" side="right" sideOffset={6}>
           <button className="h-8 w-8 flex items-center justify-center hover:bg-slate-100 rounded-md transition">
             <Film className="w-4 h-4" />
           </button>
-        </Hint>
+        </Hint> */}
       </div>
 
       <CaptionSettings

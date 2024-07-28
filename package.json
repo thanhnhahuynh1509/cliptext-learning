@@ -58,6 +58,7 @@
     "@types/file-saver": "^2.0.7",
     "@types/node": "^20",
     "@types/react": "^18",
+    "@types/react-color": "^3.0.12",
     "@types/react-dom": "^18",
     "@types/react-window": "^1.8.8",
     "@types/uuid": "^9.0.8",

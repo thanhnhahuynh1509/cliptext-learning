@@ -7,7 +7,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { CaptionStyle } from "@/types/caption-style-type";
-import { Pen, Trash2 } from "lucide-react";
+import { EllipsisIcon, EllipsisVertical, Pen, Trash2 } from "lucide-react";
 import React, { memo, useEffect, useMemo } from "react";
 
 interface CaptionStyleSelectionSectionProps {
@@ -49,7 +49,7 @@ const CaptionStyleSelectionSection = ({
         </div>
 
         <Button size={"icon"} variant={"ghost"}>
-          <Pen className="w-6 h-6" />
+          <EllipsisVertical className="w-6 h-6" />
         </Button>
       </div>
 
