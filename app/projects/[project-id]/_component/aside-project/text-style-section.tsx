@@ -1,5 +1,3 @@
-import { Button } from "@/components/ui/button";
-import { CircleHelp } from "lucide-react";
 import React from "react";
 import TextStyleItem from "./text-style-item";
 import {
@@ -9,21 +7,16 @@ import {
   DEFAULT_OUTLINE_COLOR,
   DEFAULT_PAST_COLOR,
 } from "@/types/caption-style-type";
-import { useCaptionStyles } from "@/stores/caption-style-store";
-import { DebouncedState } from "usehooks-ts";
 
 interface TextStyleSectionProps {
   caption?: CaptionStyle;
-  onUpdateCaption: DebouncedState<
-    (id: number, caption: CaptionStyle) => Promise<void>
-  >;
+  afterSetValueCallback: (caption: CaptionStyle | undefined) => void;
 }
 
 const TextStyleSection = ({
   caption,
-  onUpdateCaption,
+  afterSetValueCallback,
 }: TextStyleSectionProps) => {
-  const { updateActiveCaption } = useCaptionStyles();
   return (
     <div className="flex flex-col items-start gap-y-12 w-1/2">
       <TextStyleItem
@@ -35,8 +28,7 @@ const TextStyleSection = ({
             ...caption,
             pastColor: hex.replace("#", ""),
           };
-          updateActiveCaption(updatedCaption);
-          onUpdateCaption(updatedCaption.id, updatedCaption);
+          afterSetValueCallback(updatedCaption);
         }}
       />
       <TextStyleItem
@@ -48,8 +40,7 @@ const TextStyleSection = ({
             ...caption,
             currentColor: hex.replace("#", ""),
           };
-          updateActiveCaption(updatedCaption);
-          onUpdateCaption(updatedCaption.id, updatedCaption);
+          afterSetValueCallback(updatedCaption);
         }}
       />
       <TextStyleItem
@@ -61,8 +52,7 @@ const TextStyleSection = ({
             ...caption,
             futureColor: hex.replace("#", ""),
           };
-          updateActiveCaption(updatedCaption);
-          onUpdateCaption(updatedCaption.id, updatedCaption);
+          afterSetValueCallback(updatedCaption);
         }}
       />
       <TextStyleItem
@@ -74,8 +64,7 @@ const TextStyleSection = ({
             ...caption,
             outlineColor: hex.replace("#", ""),
           };
-          updateActiveCaption(updatedCaption);
-          onUpdateCaption(updatedCaption.id, updatedCaption);
+          afterSetValueCallback(updatedCaption);
         }}
       />
     </div>

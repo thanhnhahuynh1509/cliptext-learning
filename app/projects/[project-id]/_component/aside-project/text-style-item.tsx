@@ -39,7 +39,7 @@ const TextStyleItem = ({ label, color, onChange }: TextStyleItem) => {
           setOnOpen(e);
         }}
       >
-        <PopoverTrigger>
+        <PopoverTrigger asChild>
           <Button
             size={"icon"}
             variant={"project"}

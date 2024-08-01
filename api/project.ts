@@ -166,6 +166,13 @@ export async function updateSpeaker(id: string, speaker: Speaker) {
   return response.data;
 }
 
+export async function updateProjectCaption(id: string, captionId: number) {
+  const response = await axios.put(
+    `${PROJECT_ENDPOINT}/${id}/caption?captionId=${captionId}`
+  );
+  return response.data;
+}
+
 export async function exportMP4(id: string, input: string) {
   const response = await axios.post(
     `${PROJECT_ENDPOINT}/${id}/export-mp4?input=${input}`

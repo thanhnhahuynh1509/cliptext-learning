@@ -22,22 +22,13 @@ import {
 } from "./font-section-handler";
 
 interface FontSectionProps {
-  onUpdateCaption: DebouncedState<
-    (id: number, caption: CaptionStyle) => Promise<void>
-  >;
+  afterSetValueCallback: (caption: CaptionStyle | undefined) => void;
   caption?: CaptionStyle;
 }
 
-const FontSection = ({ onUpdateCaption, caption }: FontSectionProps) => {
+const FontSection = ({ afterSetValueCallback, caption }: FontSectionProps) => {
   const { fonts, getActiveFontByCaption } = useFontServer();
-  const { updateActiveCaption } = useCaptionStyles();
   const activeFont = getActiveFontByCaption(fonts, caption);
-
-  const afterSetValueCallback = (caption: CaptionStyle | undefined) => {
-    if (!caption) return;
-    updateActiveCaption(caption);
-    onUpdateCaption(caption.id, caption);
-  };
 
   return (
     <div className="flex flex-col gap-y-8 items-start w-1/2">
