@@ -19,7 +19,7 @@ import { toast } from "sonner";
 import { useMediaPlayerRef } from "@/stores/media-player-ref-store";
 import { useTranscript } from "@/stores/transcript-store";
 import { Word } from "@/types/transcript-types";
-import CreateActionCaptionSection from "./CreateActionCaptionSection";
+import CreateActionCaptionSection from "./create-action-caption-section";
 
 interface CaptionSettingsProps {
   onStyleOpen: boolean;

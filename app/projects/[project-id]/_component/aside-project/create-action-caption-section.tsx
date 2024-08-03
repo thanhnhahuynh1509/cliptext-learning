@@ -1,5 +1,4 @@
 import { Button } from "@/components/ui/button";
-import { CaptionStyle } from "@/types/caption-style-type";
 import { CircleCheck, X } from "lucide-react";
 import React from "react";
 

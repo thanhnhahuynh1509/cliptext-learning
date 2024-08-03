@@ -104,21 +104,26 @@ export const captureFrame = async (
   });
 };
 
-export function loadFont(fontStyle: string) {
+export function loadFont(fontStyle: string, fontFamily: string) {
+  const fontsStyleNode = document.getElementById(fontFamily);
+  if (fontsStyleNode) {
+    document.body.removeChild(fontsStyleNode);
+  }
   const newStyle = document.createElement("style");
+  newStyle.id = fontFamily;
   newStyle.appendChild(document.createTextNode(fontStyle));
   document.body.appendChild(newStyle);
 }
 
 export function addFontToDom(fonts: Font[]) {
   for (const font of fonts) {
-    const fontFamily = `
+    const fontStyle = `
           @font-face {
             font-family: '${font.fontFamily}';
             src: url('${SERVER_ENDPOINT + "/" + font.url}');
           }
         `;
-    loadFont(fontFamily);
+    loadFont(fontStyle, font.fontFamily);
   }
 }
 

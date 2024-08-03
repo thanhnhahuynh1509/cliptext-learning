@@ -13,7 +13,7 @@ import { useMediaPlayerRender } from "@/stores/media-player-render-store";
 import { useMediaPlayerRef } from "@/stores/media-player-ref-store";
 import { addFontToDom, captureFrame, loadFont } from "@/lib/utils";
 import { Kind } from "@/types/project-types";
-import { listSystemFont } from "@/api/font";
+import { listOwnerFont, listSystemFont } from "@/api/font";
 import {
   createCaptionStyle,
   listCaptionStyleByUserId,
@@ -55,7 +55,9 @@ const ProjectPage = ({ params }: ProjectPageProps) => {
         setOnLoading(true);
         const response = await getById(projectId);
         const data = await getDataById(projectId);
-        const fonts = await listSystemFont();
+        const systemFonts = await listSystemFont();
+        const ownerFonts = await listOwnerFont(user?.id!);
+        const fonts = [...systemFonts, ...ownerFonts];
         const captionStyles = await listCaptionStyleByUserId(user?.id ?? "0");
 
         if (!captionStyles?.length) {

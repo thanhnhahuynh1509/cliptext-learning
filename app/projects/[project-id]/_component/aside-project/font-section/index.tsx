@@ -10,8 +10,8 @@ import {
 import { useCaptionStyles } from "@/stores/caption-style-store";
 import { useFontServer } from "@/stores/font-server-store";
 import { CaptionStyle } from "@/types/caption-style-type";
-import { ArrowUpFromLine } from "lucide-react";
-import React from "react";
+import { ArrowUpFromLine, LoaderCircle } from "lucide-react";
+import React, { useState } from "react";
 import { DebouncedState } from "usehooks-ts";
 import {
   handleChangeFontSize,
@@ -20,6 +20,10 @@ import {
   handleKeyDownMaxCharactersOnScreen,
   handleOnFontValueChange,
 } from "./font-section-handler";
+import { useUser } from "@clerk/nextjs";
+import { saveFont } from "@/api/font";
+import { toast } from "sonner";
+import { addFontToDom } from "@/lib/utils";
 
 interface FontSectionProps {
   afterSetValueCallback: (caption: CaptionStyle | undefined) => void;
@@ -27,7 +31,9 @@ interface FontSectionProps {
 }
 
 const FontSection = ({ afterSetValueCallback, caption }: FontSectionProps) => {
-  const { fonts, getActiveFontByCaption } = useFontServer();
+  const { fonts, setFonts, getActiveFontByCaption } = useFontServer();
+  const { user } = useUser();
+  const [onLoad, setOnLoad] = useState(false);
   const activeFont = getActiveFontByCaption(fonts, caption);
 
   return (
@@ -36,7 +42,7 @@ const FontSection = ({ afterSetValueCallback, caption }: FontSectionProps) => {
         <div className="flex flex-col gap-y-4 w-full">
           <h4 className="font-bold text-base">Font family</h4>
           <Select
-            defaultValue={`${activeFont?.id}`}
+            value={`${activeFont?.id}`}
             onValueChange={(value: string) => {
               handleOnFontValueChange(caption, value, afterSetValueCallback);
             }}
@@ -67,8 +73,59 @@ const FontSection = ({ afterSetValueCallback, caption }: FontSectionProps) => {
           </Select>
         </div>
 
-        <Button size={"icon"} className="w-[50px]">
-          <ArrowUpFromLine className="w-4 h-4" />
+        <Button
+          size={"icon"}
+          className="w-[50px]"
+          disabled={onLoad}
+          onClick={(e) => {
+            const uploadInput = document.createElement("input");
+            uploadInput.type = "file";
+            uploadInput.accept = ".ttf";
+
+            const fontChange = async (e: any) => {
+              if (onLoad) {
+                return;
+              }
+
+              setOnLoad(true);
+              try {
+                const files = e.target.files;
+                if (!files?.length) {
+                  return;
+                }
+                const formData = new FormData();
+                formData.append("file", files[0]);
+                formData.append("authorId", user?.id!);
+                formData.append("authorName", user?.fullName!);
+                const font = await saveFont(formData);
+                if (caption) {
+                  caption.fontId = font.id;
+                }
+                const updatedFonts = [...(fonts ?? []), font];
+                setFonts(updatedFonts);
+                addFontToDom(updatedFonts ?? []);
+                uploadInput.removeEventListener("change", fontChange);
+                afterSetValueCallback(caption);
+
+                toast.success(
+                  "Upload font successfully! Set to active font also"
+                );
+              } catch (e) {
+                console.log(e);
+                toast.error(
+                  "Couldn't upload font! Please try again or contact support"
+                );
+              } finally {
+                setOnLoad(false);
+              }
+            };
+            uploadInput.addEventListener("change", fontChange);
+            uploadInput.click();
+            uploadInput.remove();
+          }}
+        >
+          {!onLoad && <ArrowUpFromLine className="w-4 h-4" />}
+          {onLoad && <LoaderCircle className="w-4 h-4 animate-spin" />}
         </Button>
       </div>
 

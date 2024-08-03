@@ -43,8 +43,6 @@ const Player = ({ onExpand, currentTime, setCurrentTime }: PlayerProps) => {
   }, [objectUrl]);
 
   useEffect(() => {
-    console.log("change", activeCaptionStyle);
-
     const mediaElement = mediaRef.current;
     if (!mediaElement) {
       return;
